@@ -163,7 +163,7 @@ func mapToResponseFormat(neoAnn neoAnnotation, env string) (annotation, error) {
 		ann.ID = mapper.IDURL(neoAnn.PrefUUID)
 		types := mapper.TypeURIs(neoAnn.CanonicalTypes)
 		if types == nil || len(types) == 0 {
-			log.Warnf("Could not map type URIs for ID %s with types %s", ann.ID, neoAnn.CanonicalTypes)
+			log.Debugf("Could not map type URIs for ID %s with types %s", ann.ID, neoAnn.CanonicalTypes)
 			return ann, errors.New("Concept not found")
 		}
 		ann.Types = types
@@ -174,7 +174,7 @@ func mapToResponseFormat(neoAnn neoAnnotation, env string) (annotation, error) {
 		ann.ID = mapper.IDURL(neoAnn.ID)
 		types := mapper.TypeURIs(neoAnn.Types)
 		if types == nil || len(types) == 0 {
-			log.Warnf("Could not map type URIs for ID %s with types %s", ann.ID, ann.Types)
+			log.Debugf("Could not map type URIs for ID %s with types %s", ann.ID, ann.Types)
 			return ann, errors.New("Concept not found")
 		}
 		ann.Types = types
