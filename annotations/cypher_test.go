@@ -41,6 +41,7 @@ const (
 	brandWithHasBrandPredicateUUID = "2d3e16e0-61cb-4322-8aff-3b01c59f4daa"
 	brandHubPageUUID               = "87645070-7d8a-492e-9695-bf61ac2b4d18"
 	genreOpinionUUID               = "6da31a37-691f-4908-896f-2829ebe2309e"
+	orgUUID                        = "bb3c006d-e999-3919-8fb2-4992ef7a2100"
 
 	contentWithBrandsDiffTypesUUID = "3fc9fe3e-af8c-6a6a-961a-e5065392bb31"
 	financialInstrumentUUID        = "77f613ad-1470-422c-bf7c-1dd4c3fd1693"
@@ -129,7 +130,7 @@ var allUUIDs = []string{contentUUID, contentWithNoAnnotationsUUID, contentWithPa
 	brandParentUUID, brandChildUUID, brandGrandChildUUID, brandCircularAUUID, brandCircularBUUID, contentWithBrandsDiffTypesUUID,
 	FakebookConceptUUID, MSJConceptUUID, MetalMickeyConceptUUID, brokenPacUUID, financialInstrumentUUID, JohnSmithConceptUUID,
 	aboutTopic, broaderTopicA, broaderTopicB, narrowerTopic, cyclicTopicA, cyclicTopicB, brandWithHasBrandPredicateUUID,
-	brandHubPageUUID, genreOpinionUUID, contentWithHasBrand,
+	brandHubPageUUID, genreOpinionUUID, contentWithHasBrand, orgUUID,
 }
 
 func TestCypherDriverSuite(t *testing.T) {
