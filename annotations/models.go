@@ -2,14 +2,21 @@ package annotations
 
 type annotations []annotation
 
+type IndustryClassification struct {
+	Identifier string `json:"identifier"`
+	PrefLabel  string `json:"prefLabel"`
+	Rank       int    `json:"rank"`
+}
+
 type annotation struct {
-	Predicate string   `json:"predicate"`
-	ID        string   `json:"id"`
-	APIURL    string   `json:"apiUrl"`
-	Types     []string `json:"types"`
-	LeiCode   string   `json:"leiCode,omitempty"`
-	FIGI      string   `json:"FIGI,omitempty"`
-	PrefLabel string   `json:"prefLabel,omitempty"`
+	Predicate string                   `json:"predicate"`
+	ID        string                   `json:"id"`
+	APIURL    string                   `json:"apiUrl"`
+	Types     []string                 `json:"types"`
+	LeiCode   string                   `json:"leiCode,omitempty"`
+	FIGI      string                   `json:"FIGI,omitempty"`
+	NAICS     []IndustryClassification `json:"NAICS,omitempty"`
+	PrefLabel string                   `json:"prefLabel,omitempty"`
 	//used for filtering, e.g. pac not exposed
 	Lifecycle    string `json:"-"`
 	IsDeprecated bool   `json:"isDeprecated,omitempty"`

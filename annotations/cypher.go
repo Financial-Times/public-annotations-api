@@ -31,15 +31,18 @@ func (cd cypherDriver) checkConnectivity() error {
 }
 
 type neoAnnotation struct {
-	Predicate    string
-	ID           string
-	APIURL       string
-	Types        []string
-	LeiCode      string
-	FIGI         string
-	PrefLabel    string
-	Lifecycle    string
-	IsDeprecated bool
+	Predicate       string
+	ID              string
+	APIURL          string
+	Types           []string
+	LeiCode         string
+	FIGI            string
+	NAICSIdentifier string
+	NAICSPrefLabel  string
+	NAICSRank       int
+	PrefLabel       string
+	Lifecycle       string
+	IsDeprecated    bool
 
 	// Canonical information
 	PrefUUID           string
@@ -61,6 +64,7 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 		Statement: `
 		MATCH (content:Content{uuid:{contentUUID}})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		OPTIONAL MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(:Concept)<-[:ISSUED_BY]-(figi:FinancialInstrument)
+		OPTIONAL MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(:Concept)-[naicsRel:HAS_INDUSTRY_CLASSIFICATION{rank:1}]->(NAICSIndustryClassification)-[:EQUIVALENT_TO]->(naics:NAICSIndustryClassification)
 		RETURN
 			canonicalConcept.prefUUID as id,
 			canonicalConcept.isDeprecated as isDeprecated,
@@ -69,10 +73,13 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 			canonicalConcept.prefLabel as prefLabel,
 			canonicalConcept.leiCode as leiCode,
 			figi.figiCode as figi,
+			naics.industryIdentifier as naicsIdentifier,
+			naics.prefLabel as naicsPrefLabel,
+			naicsRel.rank as naicsRank,
 			rel.lifecycle as lifecycle
 		UNION ALL
 		MATCH (content:Content{uuid:{contentUUID}})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
-		OPTIONAL MATCH (canonicalBrand)-[:EQUIVALENT_TO]-(leafBrand:Brand)-[r:HAS_PARENT*0..]->(parentBrand:Brand)-[:EQUIVALENT_TO]->(canonicalParent:Brand)
+		OPTIONAL MATCH (canonicalBrand)<-[:EQUIVALENT_TO]-(leafBrand:Brand)-[r:HAS_PARENT*0..]->(parentBrand:Brand)-[:EQUIVALENT_TO]->(canonicalParent:Brand)
 		RETURN 
 			DISTINCT canonicalParent.prefUUID as id,
 			canonicalParent.isDeprecated as isDeprecated,
@@ -81,6 +88,9 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 			canonicalParent.prefLabel as prefLabel,
 			null as leiCode,
 			null as figi,
+			null as naicsIdentifier,
+			null as naicsPrefLabel,
+			null as naicsRank,
 			rel.lifecycle as lifecycle
 		UNION ALL
 		MATCH (content:Content{uuid:{contentUUID}})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
@@ -93,6 +103,9 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 			canonicalBrand.prefLabel as prefLabel,
 			null as leiCode,
 			null as figi,
+			null as naicsIdentifier,
+			null as naicsPrefLabel,
+			null as naicsRank,
 			rel.lifecycle as lifecycle
 		UNION ALL
 		MATCH (content:Content{uuid:{contentUUID}})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
@@ -106,6 +119,9 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 			canonicalImplicit.prefLabel as prefLabel,
 			null as leiCode,
 			null as figi,
+			null as naicsIdentifier,
+			null as naicsPrefLabel,
+			null as naicsRank,
 			rel.lifecycle as lifecycle
 		`,
 		Parameters: neoism.Props{"contentUUID": contentUUID},
@@ -143,6 +159,15 @@ func mapToResponseFormat(neoAnn neoAnnotation, env string) (annotation, error) {
 	ann.PrefLabel = neoAnn.PrefLabel
 	ann.LeiCode = neoAnn.LeiCode
 	ann.FIGI = neoAnn.FIGI
+	if neoAnn.NAICSIdentifier != "" {
+		ann.NAICS = []IndustryClassification{
+			{
+				Identifier: neoAnn.NAICSIdentifier,
+				PrefLabel:  neoAnn.NAICSPrefLabel,
+				Rank:       neoAnn.NAICSRank,
+			},
+		}
+	}
 	ann.APIURL = mapper.APIURL(neoAnn.ID, neoAnn.Types, env)
 	ann.ID = mapper.IDURL(neoAnn.ID)
 	types := mapper.TypeURIs(neoAnn.Types)

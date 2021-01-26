@@ -13,7 +13,7 @@ import (
 	annrw "github.com/Financial-Times/annotations-rw-neo4j/v3/annotations"
 	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
 	"github.com/Financial-Times/concepts-rw-neo4j/concepts"
-	"github.com/Financial-Times/content-rw-neo4j/content"
+	"github.com/Financial-Times/content-rw-neo4j/v3/content"
 	"github.com/Financial-Times/go-logger/v2"
 	"github.com/Financial-Times/neo-utils-go/v2/neoutils"
 	"github.com/jmcvetta/neoism"
@@ -51,6 +51,10 @@ const (
 	MetalMickeyConceptUUID = "0483bef8-5797-40b8-9b25-b12e492f63c6"
 	JohnSmithConceptUUID   = "75e2f7e9-cb5e-40a5-a074-86d69fe09f69"
 	brokenPacUUID          = "8d965e66-5454-4856-972d-f64cc1a18a5d"
+
+	contentWithNAICSOrgUUID = "3fc9fe3e-af8c-7a7a-961a-e5065392bb31"
+	NYTConceptUUID          = "0d9fbdfc-7d95-332b-b77b-1e69274b1b83"
+	NAICSConceptUUID        = "38ee195d-ebdd-48a9-af4b-c8a322e7b04d"
 
 	narrowerTopic = "7e22c8b8-b280-4e52-aa22-fa1c6dffd894"
 	aboutTopic    = "ca982370-66cd-43bd-b2e3-7bfcb73efb1e"
@@ -130,7 +134,7 @@ var allUUIDs = []string{contentUUID, contentWithNoAnnotationsUUID, contentWithPa
 	brandParentUUID, brandChildUUID, brandGrandChildUUID, brandCircularAUUID, brandCircularBUUID, contentWithBrandsDiffTypesUUID,
 	FakebookConceptUUID, MSJConceptUUID, MetalMickeyConceptUUID, brokenPacUUID, financialInstrumentUUID, JohnSmithConceptUUID,
 	aboutTopic, broaderTopicA, broaderTopicB, narrowerTopic, cyclicTopicA, cyclicTopicB, brandWithHasBrandPredicateUUID,
-	brandHubPageUUID, genreOpinionUUID, contentWithHasBrand, orgUUID,
+	brandHubPageUUID, genreOpinionUUID, contentWithHasBrand, orgUUID, contentWithNAICSOrgUUID, NYTConceptUUID, NAICSConceptUUID,
 }
 
 func TestCypherDriverSuite(t *testing.T) {
@@ -585,6 +589,39 @@ func TestRetrieveNoAnnotationsWhenThereAreNoConceptsPresent(t *testing.T) {
 	assert.Equal(0, len(anns), "Didn't get the same number of annotations, anns=%s", anns)
 }
 
+func TestRetrieveAnnotationsWithNAICSOrganisation(t *testing.T) {
+	assert := assert.New(t)
+	db := getDatabaseConnection(t)
+	annService := annrw.NewCypherAnnotationsService(db)
+	assert.NoError(annService.Initialise())
+
+	writeContent(t, db)
+	writeOrganisations(t, db)
+	writeFinancialInstruments(t, db)
+	writeV2Annotations(t, db)
+	defer cleanDB(t, db)
+
+	driver := NewCypherDriver(db, "prod")
+	anns := getAndCheckAnnotations(driver, contentWithNAICSOrgUUID, t)
+
+	expectedAnnotations := annotations{
+		getExpectedNewYorkshireTimesAnnotation(v2Lifecycle),
+		getExpectedMentionsFakebookAnnotation(v2Lifecycle),
+	}
+
+	assert.Equal(len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
+	assertListContainsAll(t, anns, expectedAnnotations)
+
+	for _, ann := range anns {
+		for _, expected := range expectedAnnotations {
+			if expected.ID == ann.ID {
+				assert.Equal(expected.NAICS, ann.NAICS, "Didn't get the expected NAICS details")
+				break
+			}
+		}
+	}
+}
+
 func getAndCheckAnnotations(driver cypherDriver, contentUUID string, t *testing.T) annotations {
 	anns, found, err := driver.read(contentUUID)
 	anns = applyDefaultFilters(anns)
@@ -631,6 +668,7 @@ func writeContent(t testing.TB, db neoutils.NeoConnection) baseftrwapp.Service {
 	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-4a4a-961a-e5065392bb31.json", t)
 	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-5a5a-961a-e5065392bb31.json", t)
 	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-6a6a-961a-e5065392bb31.json", t)
+	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-7a7a-961a-e5065392bb31.json", t)
 	writeJSONToBaseService(contentRW, "./testdata/Content-ae17012e-ad40-11e9-8030-530adfa879c2.json", t)
 	return contentRW
 }
@@ -652,6 +690,8 @@ func writeOrganisations(t testing.TB, db neoutils.NeoConnection) concepts.Concep
 	assert.NoError(t, organisationRW.Initialise())
 	writeJSONToService(organisationRW, "./testdata/Organisation-MSJ-5d1510f8-2779-4b74-adab-0a5eb138fca6.json", t)
 	writeJSONToService(organisationRW, "./testdata/Organisation-Fakebook-eac853f5-3859-4c08-8540-55e043719400.json", t)
+	writeJSONToService(organisationRW, "./testdata/NAICSIndustryClassification-38ee195d-ebdd-48a9-af4b-c8a322e7b04d.json", t)
+	writeJSONToService(organisationRW, "./testdata/Organisation-NYT-0d9fbdfc-7d95-332b-b77b-1e69274b1b83.json", t)
 	return organisationRW
 }
 
@@ -706,6 +746,7 @@ func writeV2Annotations(t testing.TB, db neoutils.NeoConnection) annrw.Service {
 	service := annrw.NewCypherAnnotationsService(db)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, v2PlatformVersion, v2Lifecycle, contentUUID, "./testdata/Annotations-3fc9fe3e-af8c-4f7f-961a-e5065392bb31-v2.json")
+	writeJSONToAnnotationsService(t, service, v2PlatformVersion, v2Lifecycle, contentWithNAICSOrgUUID, "./testdata/Annotations-3fc9fe3e-af8c-7a7a-961a-e5065392bb31-v2.json")
 
 	return service
 }
@@ -883,6 +924,28 @@ func getExpectedMallStreetJournalAnnotation(lifecycle string) annotation {
 		},
 		PrefLabel: "The Mall Street Journal",
 		Lifecycle: lifecycle,
+	}
+}
+
+func getExpectedNewYorkshireTimesAnnotation(lifecycle string) annotation {
+	return annotation{
+		Predicate: "http://www.ft.com/ontology/annotation/mentions",
+		ID:        "http://api.ft.com/things/" + NYTConceptUUID,
+		APIURL:    "http://api.ft.com/organisations/" + NYTConceptUUID,
+		Types: []string{
+			"http://www.ft.com/ontology/core/Thing",
+			"http://www.ft.com/ontology/concept/Concept",
+			"http://www.ft.com/ontology/organisation/Organisation",
+		},
+		PrefLabel: "The New Yorkshire Times",
+		Lifecycle: lifecycle,
+		NAICS: []IndustryClassification{
+			{
+				PrefLabel:  "Newspaper, Periodical, Book, and Directory Publishers",
+				Identifier: "5111-test",
+				Rank:       1,
+			},
+		},
 	}
 }
 

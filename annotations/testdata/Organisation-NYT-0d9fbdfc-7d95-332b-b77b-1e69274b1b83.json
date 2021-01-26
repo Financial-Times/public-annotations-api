@@ -1,0 +1,21 @@
+{
+  "prefUUID": "0d9fbdfc-7d95-332b-b77b-1e69274b1b83",
+  "prefLabel": "The New Yorkshire Times",
+  "type": "Organisation",
+  "sourceRepresentations": [
+    {
+      "uuid": "0d9fbdfc-7d95-332b-b77b-1e69274b1b83",
+      "prefLabel": "The New Yorkshire Times",
+      "type": "Organisation",
+      "authority": "FACTSET",
+      "authorityValue": "000R9L-E",
+      "naicsIndustryClassifications": [
+        {
+          "uuid": "38ee195d-ebdd-48a9-af4b-c8a322e7b04d",
+          "rank": 1
+        }
+      ]
+    }
+  ],
+  "properName": "The New Yorkshire Times"
+}
