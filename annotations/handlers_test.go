@@ -2,6 +2,7 @@ package annotations
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -77,10 +78,11 @@ func TestGetHandler(t *testing.T) {
 
 func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 	tests := map[string]struct {
-		annotationsDriver  mockDriver
-		lifecycleParams    string
-		expectedStatusCode int
-		expectedBody       string
+		annotationsDriver   mockDriver
+		lifecycleParams     string
+		expectedStatusCode  int
+		expectedBody        string
+		expectedAnnotations annotations
 	}{
 		"request with valid lifecycle parameter should succeed": {
 			annotationsDriver: mockDriver{
@@ -110,10 +112,16 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 			},
 			lifecycleParams:    "lifecycle=pac&lifecycle=v1",
 			expectedStatusCode: http.StatusOK,
-			expectedBody: `[
-				{"predicate":"http://www.ft.com/ontology/annotation/about","id":"6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18","apiUrl":"","types":null},
-				{"predicate":"http://www.ft.com/ontology/annotation/mentions","id":"0ab61bfc-a2b1-4b08-a864-4233fd72f250","apiUrl":"","types":null}
-			]`,
+			expectedAnnotations: annotations{
+				annotation{
+					Predicate: "http://www.ft.com/ontology/annotation/about",
+					ID:        "6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18",
+				},
+				annotation{
+					Predicate: "http://www.ft.com/ontology/annotation/mentions",
+					ID:        "0ab61bfc-a2b1-4b08-a864-4233fd72f250",
+				},
+			},
 		},
 	}
 
@@ -134,7 +142,17 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 			r.HandleFunc("/content/{uuid}/annotations", GetAnnotations(hctx)).Methods("GET")
 			r.ServeHTTP(rec, req)
 			assert.True(t, tc.expectedStatusCode == rec.Code, fmt.Sprintf("Wrong response code, was %d, should be %d", rec.Code, tc.expectedStatusCode))
-			assert.JSONEq(t, tc.expectedBody, rec.Body.String(), fmt.Sprintf("Wrong response body"))
+			if tc.expectedBody != "" {
+				assert.JSONEq(t, tc.expectedBody, rec.Body.String(), "Wrong error response body")
+				return
+			}
+
+			actualAnns := annotations{}
+			err = json.Unmarshal(rec.Body.Bytes(), &actualAnns)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assert.ElementsMatch(t, tc.expectedAnnotations, actualAnns, "Wrong response body")
 		})
 	}
 }
