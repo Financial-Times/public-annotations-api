@@ -3,6 +3,7 @@
 package annotations
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -20,6 +21,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const (
@@ -137,6 +140,55 @@ var allUUIDs = []string{contentUUID, contentWithNoAnnotationsUUID, contentWithPa
 	brandHubPageUUID, genreOpinionUUID, contentWithHasBrand, orgUUID, contentWithNAICSOrgUUID, NYTConceptUUID, NAICSConceptUUID,
 }
 
+var (
+	neo4jPort string
+)
+
+func TestMain(m *testing.M) {
+	var err error
+	var stopNeo4jContainer func()
+	stopNeo4jContainer, neo4jPort, err = setupNeo4jContainer()
+	if err != nil {
+		panic(err)
+	}
+
+	exitCode := m.Run()
+	stopNeo4jContainer()
+	os.Exit(exitCode)
+}
+
+func setupNeo4jContainer() (func(), string, error) {
+	ctx := context.Background()
+	req := testcontainers.ContainerRequest{
+		Image:        "neo4j:3.4.10-enterprise",
+		ExposedPorts: []string{"7474"},
+		Env: map[string]string{
+			"NEO4J_AUTH":                     "none",
+			"NEO4J_ACCEPT_LICENSE_AGREEMENT": "yes",
+		},
+		WaitingFor: wait.ForHTTP("/").WithPort("7474"),
+	}
+
+	neo4jC, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+
+	if err != nil {
+		return nil, "", fmt.Errorf("error starting neo4j container: %w", err)
+	}
+
+	terminateFunc := func() {
+		err := neo4jC.Terminate(ctx)
+		if err != nil {
+			panic(fmt.Sprintf("%v", err))
+		}
+	}
+
+	port, _ := neo4jC.MappedPort(ctx, "7474/tcp")
+	return terminateFunc, port.Port(), nil
+}
+
 func TestCypherDriverSuite(t *testing.T) {
 	suite.Run(t, newCypherDriverTestSuite())
 }
@@ -163,7 +215,7 @@ func getDatabaseConnection(t *testing.T) neoutils.NeoConnection {
 
 	url := os.Getenv("NEO4J_TEST_URL")
 	if url == "" {
-		url = "http://localhost:7474/db/data"
+		url = fmt.Sprintf("http://localhost:%s/db/data", neo4jPort)
 	}
 
 	conf := neoutils.DefaultConnectionConfig()

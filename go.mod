@@ -19,7 +19,8 @@ require (
 	github.com/jmcvetta/neoism v1.3.2-0.20160701082253-9d29cb10be18
 	github.com/joho/godotenv v1.3.0
 	github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
+	github.com/testcontainers/testcontainers-go v0.10.0
 )
 
 replace gopkg.in/stretchr/testify.v1 => github.com/stretchr/testify v1.4.0
