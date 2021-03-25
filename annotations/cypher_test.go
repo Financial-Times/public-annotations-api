@@ -844,9 +844,8 @@ func deleteUUIDs(t testing.TB, db neoutils.NeoConnection, uuids []string) {
 	for i, uuid := range uuids {
 		qs[i] = &neoism.CypherQuery{Statement: `
 			MATCH (a:Thing {uuid: {thingUUID}})
-			OPTIONAL MATCH (a)<-[iden:IDENTIFIES]-(i:Identifier)
 			OPTIONAL MATCH (a)-[:EQUIVALENT_TO]-(t:Thing)
-			DELETE iden, i, t
+			DELETE t
 			DETACH DELETE a`,
 			Parameters: map[string]interface{}{
 				"thingUUID": uuid,
