@@ -7,8 +7,8 @@ github.com/Financial-Times/api-endpoint v0.0.0-20170713111258-802a63542ff0/go.mo
 github.com/Financial-Times/base-ft-rw-app-go v0.0.0-20171010162315-74eab27b0c6d/go.mod h1:olJfPwdMPV/SJUrv4J+9gI9yaj7d24vXF2GNisFRCOg=
 github.com/Financial-Times/base-ft-rw-app-go v0.0.0-20180522140206-1ea8a13e1f37 h1:q+Ubt1VD24xY/+mk7BqFdX/qD+WfwrieK9um7o8XYhQ=
 github.com/Financial-Times/base-ft-rw-app-go v0.0.0-20180522140206-1ea8a13e1f37/go.mod h1:olJfPwdMPV/SJUrv4J+9gI9yaj7d24vXF2GNisFRCOg=
-github.com/Financial-Times/concepts-rw-neo4j v1.28.0-dev-identifiers-rc1 h1:SHm7akmvPtyKWhEnqhEmR6biaDdtkulj9IVDkGE84Ec=
-github.com/Financial-Times/concepts-rw-neo4j v1.28.0-dev-identifiers-rc1/go.mod h1:dzsMkapEPuXLoq6/fERZ6Se3qh/Af9/taweycMnkvsI=
+github.com/Financial-Times/concepts-rw-neo4j v1.28.0 h1:i9uSSnbFn/miJ23VSYyje705SuVRy4Xn7W43C5rPGNo=
+github.com/Financial-Times/concepts-rw-neo4j v1.28.0/go.mod h1:dzsMkapEPuXLoq6/fERZ6Se3qh/Af9/taweycMnkvsI=
 github.com/Financial-Times/content-rw-neo4j/v3 v3.3.0 h1:OdMr2Dc1w87hQfTuNnOaAM3u3aJkRjCuBL3OzRQ5VhY=
 github.com/Financial-Times/content-rw-neo4j/v3 v3.3.0/go.mod h1:F4F+EYvpvWUV00TVxaOJcS0Aa2ZzimFbBo8GalZBN2I=
 github.com/Financial-Times/go-fthealth v0.0.0-20171204124831-1b007e2b37b7/go.mod h1:gpAzq6W5rCheYlY32JOIxS/VjVcYHbC2PkMzQngHT9c=
