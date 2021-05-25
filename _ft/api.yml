@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Public Annotations API
-  description: Provides a public API for Annotations stored in a Neo4J graph database
+  description: Provides a public API for annotations stored in a Neo4J graph database
   version: 2.0.0
   contact:
     name: Universal Publishing
@@ -9,6 +9,14 @@ info:
   license:
     name: Apache-2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.ft.com/
+  - url: https://api-t.ft.com/
+
+security:
+  - ApiKeyAuth: []
+
 paths:
   "/content/{contentUUID}/annotations":
     get:
@@ -138,9 +146,14 @@ paths:
         "503":
           description: Service Unavailable if it cannot connect to Neo4j.
   /__health:
+    servers:
+      - url: https://upp-prod-delivery-glb.upp.ft.com/__public-annotations-api/
+      - url: https://upp-staging-delivery-glb.upp.ft.com/__public-annotations-api/
     get:
       summary: Healthchecks
-      description: Runs application healthchecks and returns FT Healthcheck style json.
+      description: Runs application healthchecks and returns FT healthcheck style JSON.
+      security:
+        - BasicAuth: []
       tags:
         - Health
       responses:
@@ -150,10 +163,15 @@ paths:
             the overall `ok` property to see whether or not the application is
             healthy.
   /__build-info:
+    servers:
+      - url: https://upp-prod-delivery-glb.upp.ft.com/__public-annotations-api/
+      - url: https://upp-staging-delivery-glb.upp.ft.com/__public-annotations-api/
     get:
       summary: Build Information
       description: Returns application build info, such as the git repository and revision,
         the golang version it was built with, and the app release version.
+      security:
+        - BasicAuth: []
       tags:
         - Info
       responses:
@@ -161,9 +179,14 @@ paths:
           description: Outputs build information as described in the summary.
   /__gtg:
     get:
+      servers:
+        - url: https://upp-prod-delivery-glb.upp.ft.com/__public-annotations-api/
+        - url: https://upp-staging-delivery-glb.upp.ft.com/__public-annotations-api/
       summary: Good To Go
       description: Lightly healthchecks the application, and returns a 200 if it's
         Good-To-Go.
+      security:
+        - BasicAuth: []
       tags:
         - Health
       responses:
@@ -174,5 +197,30 @@ paths:
           description: One or more of the applications healthchecks have failed, so please
             do not use the app. See the /__health endpoint for more detailed
             information.
-servers:
-  - url: https://api.ft.com/
+  /__api:
+    servers:
+      - url: https://upp-prod-delivery-glb.upp.ft.com/__public-annotations-api/
+      - url: https://upp-staging-delivery-glb.upp.ft.com/__public-annotations-api/
+    get:
+      summary: API Documentation
+      description: Returns OpenAPI documentation for the application.
+      security:
+        - BasicAuth: []
+      tags:
+        - Info
+      responses:
+        "200":
+          description: Returns OpenAPI information.
+          content:
+            text/plain;charset=utf-8:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    BasicAuth:
+      type: http
+      scheme: basic

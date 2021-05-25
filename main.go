@@ -12,6 +12,7 @@ import (
 	"github.com/Financial-Times/http-handlers-go/v2/httphandlers"
 	"github.com/Financial-Times/neo-utils-go/v2/neoutils"
 
+	apiEndpoint "github.com/Financial-Times/api-endpoint"
 	"github.com/Financial-Times/go-logger/v2"
 	"github.com/Financial-Times/public-annotations-api/v3/annotations"
 	status "github.com/Financial-Times/service-status-go/httphandlers"
@@ -55,12 +56,18 @@ func main() {
 		Desc:   "Log level for the service",
 		EnvVar: "LOG_LEVEL",
 	})
+	apiYml := app.String(cli.StringOpt{
+		Name:   "api-yml",
+		Value:  "./api.yml",
+		Desc:   "Location of the API Swagger YML file.",
+		EnvVar: "API_YML",
+	})
 
 	log := logger.NewUPPLogger("public-annotations-api", *logLevel)
 
 	app.Action = func() {
 		log.Infof("public-annotations-api will listen on port: %s, connecting to: %s", *port, *neoURL)
-		err := runServer(*neoURL, *port, *cacheDuration, *env, log)
+		err := runServer(*neoURL, *port, *cacheDuration, *env, log, apiYml)
 		if err != nil {
 			log.WithError(err).Error("failed to start public-annotations-api service")
 			return
@@ -75,7 +82,7 @@ func main() {
 	}
 }
 
-func runServer(neoURL string, port string, cacheDuration string, env string, log *logger.UPPLogger) error {
+func runServer(neoURL string, port string, cacheDuration string, env string, log *logger.UPPLogger, apiYml *string) error {
 	duration, durationErr := time.ParseDuration(cacheDuration)
 	if durationErr != nil {
 		return fmt.Errorf("failed to parse cache duration string: %w", durationErr)
@@ -100,11 +107,10 @@ func runServer(neoURL string, port string, cacheDuration string, env string, log
 
 	annotationsDriver := annotations.NewCypherDriver(db, env)
 	handlersCtx := annotations.NewHandlerCtx(annotationsDriver, cacheControlHeader, log)
-	return routeRequests(port, handlersCtx)
+	return routeRequests(port, handlersCtx, apiYml)
 }
 
-func routeRequests(port string, hctx *annotations.HandlerCtx) error {
-
+func routeRequests(port string, hctx *annotations.HandlerCtx, apiYml *string) error {
 	// Standard endpoints
 	healthCheck := fthealth.TimedHealthCheck{
 		HealthCheck: fthealth.HealthCheck{
@@ -126,6 +132,11 @@ func routeRequests(port string, hctx *annotations.HandlerCtx) error {
 
 	servicesRouter.HandleFunc("/content/{uuid}/annotations", annotations.GetAnnotations(hctx)).Methods("GET")
 	servicesRouter.HandleFunc("/content/{uuid}/annotations", annotations.MethodNotAllowedHandler)
+	if apiYml != nil {
+		if endpoint, err := apiEndpoint.NewAPIEndpointForFile(*apiYml); err == nil {
+			servicesRouter.HandleFunc(apiEndpoint.DefaultPath, endpoint.ServeHTTP).Methods("GET")
+		}
+	}
 
 	var monitoringRouter http.Handler = servicesRouter
 	monitoringRouter = httphandlers.TransactionAwareRequestLoggingHandler(hctx.Log, monitoringRouter)

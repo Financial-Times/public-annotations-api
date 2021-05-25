@@ -23,7 +23,7 @@ RUN BUILDINFO_PACKAGE="${ORG_PATH}/service-status-go/buildinfo." \
 # Multi-stage build - copy only the certs and the binary into the image
 FROM scratch
 WORKDIR /
-COPY ./_ft/api.yml /_ft/
+COPY ./_ft/api.yml /
 COPY --from=0 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=0 /artifacts/* /
 
