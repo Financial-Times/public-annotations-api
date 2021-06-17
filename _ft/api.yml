@@ -21,8 +21,10 @@ paths:
   "/content/{contentUUID}/annotations":
     get:
       summary: Retrieves the annotations for a piece of content.
-      description: Given UUID of some content as a path parameter, responds with the
-        annotations of the requested pience of content in json format.
+      description:
+        Given UUID of some content as a path parameter, responds with the
+        annotations of the requested piece of content in json format.
+        If any of the concepts used in the annotations is deprecated the response will contain \"isDeprecated:true\" for that concept.
       tags:
         - Public API
       parameters:
@@ -70,6 +72,7 @@ paths:
                         - http://www.ft.com/ontology/classification/Classification
                         - http://www.ft.com/ontology/product/Brand
                       prefLabel: fastFT
+                      isDeprecated: true
                     - predicate: http://www.ft.com/ontology/classification/isPrimarilyClassifiedBy
                       id: http://api.ft.com/things/128ff9cd-e828-3369-815b-ae73f51c0a43
                       apiUrl: http://api.ft.com/things/128ff9cd-e828-3369-815b-ae73f51c0a43
