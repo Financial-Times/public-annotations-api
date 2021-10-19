@@ -14,16 +14,16 @@ type driver interface {
 	checkConnectivity() error
 }
 
-type cypherDriver struct {
+type CypherDriver struct {
 	driver *cmneo4j.Driver
 	env    string
 }
 
-func NewCypherDriver(driver *cmneo4j.Driver, env string) cypherDriver {
-	return cypherDriver{driver: driver, env: env}
+func NewCypherDriver(driver *cmneo4j.Driver, env string) CypherDriver {
+	return CypherDriver{driver: driver, env: env}
 }
 
-func (cd cypherDriver) checkConnectivity() error {
+func (cd CypherDriver) checkConnectivity() error {
 	return cd.driver.VerifyConnectivity()
 }
 
@@ -54,7 +54,7 @@ type neoAnnotation struct {
 	PlatformVersion string   `json:"platformVersion,omitempty"`
 }
 
-func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, err error) {
+func (cd CypherDriver) read(contentUUID string) (anns annotations, found bool, err error) {
 	var results []neoAnnotation
 
 	query := &cmneo4j.Query{

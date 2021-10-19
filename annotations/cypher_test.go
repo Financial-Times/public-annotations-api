@@ -654,7 +654,7 @@ func TestRetrieveAnnotationsWithNAICSOrganisation(t *testing.T) {
 	}
 }
 
-func getAndCheckAnnotations(driver cypherDriver, contentUUID string, t *testing.T) annotations {
+func getAndCheckAnnotations(driver CypherDriver, contentUUID string, t *testing.T) annotations {
 	anns, found, err := driver.read(contentUUID)
 	anns = applyDefaultFilters(anns)
 	assert.NoError(t, err, "Unexpected error for content %s", contentUUID)
@@ -761,7 +761,7 @@ func writeGenres(t testing.TB, db neoutils.NeoConnection) {
 	writeJSONToService(genresRW, "./testdata/Genre-6da31a37-691f-4908-896f-2829ebe2309e-opinion.json", t)
 }
 
-func writeV1Annotations(t testing.TB, driver *cmneo4j.Driver) annrw.Service {
+func writeV1Annotations(t testing.TB, driver *cmneo4j.Driver) {
 	service := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(t, service.Initialise())
 
@@ -771,51 +771,43 @@ func writeV1Annotations(t testing.TB, driver *cmneo4j.Driver) annrw.Service {
 	writeJSONToAnnotationsService(t, service, v1PlatformVersion, v1Lifecycle, contentWithCircularBrandUUID, "./testdata/Annotations-3fc9fe3e-af8c-4a4a-961a-e5065392bb31-v1.json")
 	writeJSONToAnnotationsService(t, service, v1PlatformVersion, v1Lifecycle, contentWithOnlyFTUUID, "./testdata/Annotations-3fc9fe3e-af8c-5a5a-961a-e5065392bb31-v1.json")
 	writeJSONToAnnotationsService(t, service, v1PlatformVersion, v1Lifecycle, contentWithBrandsDiffTypesUUID, "./testdata/Annotations-3fc9fe3e-af8c-6a6a-961a-e5065392bb31-v1.json")
-	return service
 }
 
-func writeV2Annotations(t testing.TB, driver *cmneo4j.Driver) annrw.Service {
+func writeV2Annotations(t testing.TB, driver *cmneo4j.Driver) {
 	service := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, v2PlatformVersion, v2Lifecycle, contentUUID, "./testdata/Annotations-3fc9fe3e-af8c-4f7f-961a-e5065392bb31-v2.json")
 	writeJSONToAnnotationsService(t, service, v2PlatformVersion, v2Lifecycle, contentWithNAICSOrgUUID, "./testdata/Annotations-3fc9fe3e-af8c-7a7a-961a-e5065392bb31-v2.json")
-
-	return service
 }
 
-func writePacAnnotations(t testing.TB, driver *cmneo4j.Driver) annrw.Service {
+func writePacAnnotations(t testing.TB, driver *cmneo4j.Driver) {
 	service := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentUUID, "./testdata/Annotations-3fc9fe3e-af8c-4f7f-961a-e5065392bb31-pac.json")
-	return service
 }
 
-func writeHasBrandAnnotations(t testing.TB, driver *cmneo4j.Driver) annrw.Service {
+func writeHasBrandAnnotations(t testing.TB, driver *cmneo4j.Driver) {
 	service := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentWithHasBrand, "./testdata/Annotations-ae17012e-ad40-11e9-8030-530adfa879c2-pac.json")
-	return service
 }
 
-func writeAboutAnnotations(t testing.TB, driver *cmneo4j.Driver) annrw.Service {
+func writeAboutAnnotations(t testing.TB, driver *cmneo4j.Driver) {
 	service := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentUUID, "./testdata/Annotations-ca982370-66cd-43bd-b2e3-7bfcb73efb1e-implicit-abouts.json")
-	return service
 }
 
-func writeCyclicAboutAnnotations(t testing.TB, driver *cmneo4j.Driver) annrw.Service {
+func writeCyclicAboutAnnotations(t testing.TB, driver *cmneo4j.Driver) {
 	service := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentUUID, "./testdata/Annotations-7e22c8b8-b280-4e52-aa22-fa1c6dffd894-cyclic-implicit-abouts.json")
-	return service
 }
 
-func writeBrokenPacAnnotations(t testing.TB, driver *cmneo4j.Driver) annrw.Service {
+func writeBrokenPacAnnotations(t testing.TB, driver *cmneo4j.Driver) {
 	service := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, emptyPlatformVersion, pacLifecycle, contentUUID, "./testdata/Annotations-3fc9fe3e-af8c-4f7f-961a-e5065392bb31-broken-pac.json")
-	return service
 }
 
 func writeJSONToBaseService(service baseftrwapp.Service, pathToJSONFile string, t testing.TB) {

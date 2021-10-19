@@ -41,7 +41,7 @@ Command line options:
 
 ## Build & deployment
 
-Continuosly built by CircleCI. The docker image of the service is built by Dockerhub based on the git release tag.
+Continuously built by CircleCI. The docker image of the service is built by Dockerhub based on the git release tag.
 To prepare a new git release, go to the repo page on GitHub and create a new release.
 
 * Cluster deployment:  [public-annotations-api](https://upp-k8s-jenkins.in.ft.com/job/k8s-deployment/job/apps-deployment/job/public-annotations-api-auto-deploy/)
