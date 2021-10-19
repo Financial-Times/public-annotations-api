@@ -131,7 +131,7 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 	}
 	if err != nil {
 		return annotations{}, false,
-			fmt.Errorf("failed looking up annotations for %s with query %s: %w", contentUUID, query.Cypher, err)
+			fmt.Errorf("failed looking up annotations for contentUUID %s: %w", contentUUID, err)
 	}
 
 	var mappedAnnotations []annotation
