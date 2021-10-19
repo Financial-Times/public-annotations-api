@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
+	cmneo4j "github.com/Financial-Times/cm-neo4j-driver"
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/http-handlers-go/v2/httphandlers"
-	"github.com/Financial-Times/neo-utils-go/v2/neoutils"
 
 	apiEndpoint "github.com/Financial-Times/api-endpoint"
 	"github.com/Financial-Times/go-logger/v2"
@@ -23,14 +23,15 @@ import (
 )
 
 const (
+	appName        = "public-annotations-api"
 	appDescription = "A public RESTful API for accessing Annotations in neo4j"
 )
 
 func main() {
-	app := cli.App("public-annotations-api", appDescription)
+	app := cli.App(appName, appDescription)
 	neoURL := app.String(cli.StringOpt{
 		Name:   "neo-url",
-		Value:  "http://localhost:7474/db/data",
+		Value:  "bolt://localhost:7687",
 		Desc:   "neo4j endpoint URL",
 		EnvVar: "NEO_URL"})
 	port := app.String(cli.StringOpt{
@@ -56,6 +57,12 @@ func main() {
 		Desc:   "Log level for the service",
 		EnvVar: "LOG_LEVEL",
 	})
+	dbDriverLogLevel := app.String(cli.StringOpt{
+		Name:   "dbDriverLogLevel",
+		Value:  "WARN",
+		Desc:   "Db's driver logging level (DEBUG, INFO, WARN, ERROR)",
+		EnvVar: "DB_DRIVER_LOG_LEVEL",
+	})
 	apiYml := app.String(cli.StringOpt{
 		Name:   "api-yml",
 		Value:  "./api.yml",
@@ -63,11 +70,12 @@ func main() {
 		EnvVar: "API_YML",
 	})
 
-	log := logger.NewUPPLogger("public-annotations-api", *logLevel)
+	log := logger.NewUPPLogger(appName, *logLevel)
+	dbDriverLogger := logger.NewUPPLogger(appName+"-cmneo4j-driver", *dbDriverLogLevel)
 
 	app.Action = func() {
 		log.Infof("public-annotations-api will listen on port: %s, connecting to: %s", *port, *neoURL)
-		err := runServer(*neoURL, *port, *cacheDuration, *env, log, apiYml)
+		err := runServer(*neoURL, *port, *cacheDuration, *env, *apiYml, dbDriverLogger, log)
 		if err != nil {
 			log.WithError(err).Error("failed to start public-annotations-api service")
 			return
@@ -82,35 +90,24 @@ func main() {
 	}
 }
 
-func runServer(neoURL string, port string, cacheDuration string, env string, log *logger.UPPLogger, apiYml *string) error {
+func runServer(neoURL, port, cacheDuration, env, apiYml string, dbDriverLogger, log *logger.UPPLogger) error {
 	duration, durationErr := time.ParseDuration(cacheDuration)
 	if durationErr != nil {
 		return fmt.Errorf("failed to parse cache duration string: %w", durationErr)
 	}
 	cacheControlHeader := fmt.Sprintf("max-age=%s, public", strconv.FormatFloat(duration.Seconds(), 'f', 0, 64))
 
-	conf := neoutils.ConnectionConfig{
-		BatchSize:     1024,
-		Transactional: false,
-		HTTPClient: &http.Client{
-			Transport: &http.Transport{
-				MaxIdleConnsPerHost: 100,
-			},
-			Timeout: 1 * time.Minute,
-		},
-		BackgroundConnect: true,
-	}
-	db, err := neoutils.Connect(neoURL, &conf, log)
+	driver, err := cmneo4j.NewDefaultDriver(neoURL, dbDriverLogger)
 	if err != nil {
-		return fmt.Errorf("failed connecting to neo4j: %w", err)
+		return fmt.Errorf("could not create a new driver: %w", err)
 	}
 
-	annotationsDriver := annotations.NewCypherDriver(db, env)
+	annotationsDriver := annotations.NewCypherDriver(driver, env)
 	handlersCtx := annotations.NewHandlerCtx(annotationsDriver, cacheControlHeader, log)
 	return routeRequests(port, handlersCtx, apiYml)
 }
 
-func routeRequests(port string, hctx *annotations.HandlerCtx, apiYml *string) error {
+func routeRequests(port string, hctx *annotations.HandlerCtx, apiYml string) error {
 	// Standard endpoints
 	healthCheck := fthealth.TimedHealthCheck{
 		HealthCheck: fthealth.HealthCheck{
@@ -132,8 +129,8 @@ func routeRequests(port string, hctx *annotations.HandlerCtx, apiYml *string) er
 
 	servicesRouter.HandleFunc("/content/{uuid}/annotations", annotations.GetAnnotations(hctx)).Methods("GET")
 	servicesRouter.HandleFunc("/content/{uuid}/annotations", annotations.MethodNotAllowedHandler)
-	if apiYml != nil {
-		if endpoint, err := apiEndpoint.NewAPIEndpointForFile(*apiYml); err == nil {
+	if apiYml != "" {
+		if endpoint, err := apiEndpoint.NewAPIEndpointForFile(apiYml); err == nil {
 			servicesRouter.HandleFunc(apiEndpoint.DefaultPath, endpoint.ServeHTTP).Methods("GET")
 		}
 	}
