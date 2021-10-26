@@ -5,29 +5,26 @@ import (
 
 	"errors"
 
+	cmneo4j "github.com/Financial-Times/cm-neo4j-driver"
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
-	"github.com/Financial-Times/neo-utils-go/v2/neoutils"
-	"github.com/jmcvetta/neoism"
 )
 
-// Driver interface
 type driver interface {
 	read(id string) (anns annotations, found bool, err error)
 	checkConnectivity() error
 }
 
-// CypherDriver struct
-type cypherDriver struct {
-	conn neoutils.NeoConnection
-	env  string
+type CypherDriver struct {
+	driver *cmneo4j.Driver
+	env    string
 }
 
-func NewCypherDriver(conn neoutils.NeoConnection, env string) cypherDriver {
-	return cypherDriver{conn, env}
+func NewCypherDriver(driver *cmneo4j.Driver, env string) CypherDriver {
+	return CypherDriver{driver: driver, env: env}
 }
 
-func (cd cypherDriver) checkConnectivity() error {
-	return neoutils.Check(cd.conn)
+func (cd CypherDriver) checkConnectivity() error {
+	return cd.driver.VerifyConnectivity()
 }
 
 type neoAnnotation struct {
@@ -57,12 +54,12 @@ type neoAnnotation struct {
 	PlatformVersion string   `json:"platformVersion,omitempty"`
 }
 
-func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, err error) {
+func (cd CypherDriver) read(contentUUID string) (anns annotations, found bool, err error) {
 	var results []neoAnnotation
 
-	query := &neoism.CypherQuery{
-		Statement: `
-		MATCH (content:Content{uuid:{contentUUID}})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
+	query := &cmneo4j.Query{
+		Cypher: `
+		MATCH (content:Content{uuid:$contentUUID})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		OPTIONAL MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(:Concept)<-[:ISSUED_BY]-(figi:FinancialInstrument)
 		OPTIONAL MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(:Concept)-[naicsRel:HAS_INDUSTRY_CLASSIFICATION{rank:1}]->(NAICSIndustryClassification)-[:EQUIVALENT_TO]->(naics:NAICSIndustryClassification)
 		RETURN
@@ -78,7 +75,7 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 			naicsRel.rank as naicsRank,
 			rel.lifecycle as lifecycle
 		UNION ALL
-		MATCH (content:Content{uuid:{contentUUID}})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
+		MATCH (content:Content{uuid:$contentUUID})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
 		OPTIONAL MATCH (canonicalBrand)<-[:EQUIVALENT_TO]-(leafBrand:Brand)-[r:HAS_PARENT*0..]->(parentBrand:Brand)-[:EQUIVALENT_TO]->(canonicalParent:Brand)
 		RETURN 
 			DISTINCT canonicalParent.prefUUID as id,
@@ -93,7 +90,7 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 			null as naicsRank,
 			rel.lifecycle as lifecycle
 		UNION ALL
-		MATCH (content:Content{uuid:{contentUUID}})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
+		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Topic)<-[:IMPLIED_BY*1..]-(impliedByBrand:Brand)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
 		RETURN 
 			DISTINCT canonicalBrand.prefUUID as id,
@@ -108,7 +105,7 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 			null as naicsRank,
 			rel.lifecycle as lifecycle
 		UNION ALL
-		MATCH (content:Content{uuid:{contentUUID}})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
+		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Concept)-[:HAS_BROADER*1..]->(implicit:Concept)-[:EQUIVALENT_TO]->(canonicalImplicit)
 		WHERE NOT (canonicalImplicit)<-[:EQUIVALENT_TO]-(:Concept)<-[:ABOUT]-(content) // filter out the original abouts
 		RETURN 
@@ -124,19 +121,17 @@ func (cd cypherDriver) read(contentUUID string) (anns annotations, found bool, e
 			null as naicsRank,
 			rel.lifecycle as lifecycle
 		`,
-		Parameters: neoism.Props{"contentUUID": contentUUID},
-		Result:     &results,
+		Params: map[string]interface{}{"contentUUID": contentUUID},
+		Result: &results,
 	}
 
-	err = cd.conn.CypherBatch([]*neoism.CypherQuery{query})
-
+	err = cd.driver.Read(query)
+	if errors.Is(err, cmneo4j.ErrNoResultsFound) {
+		return annotations{}, false, nil
+	}
 	if err != nil {
 		return annotations{}, false,
-			fmt.Errorf("failed looking up annotations for %s with query %s: %w", contentUUID, query.Statement, err)
-	}
-
-	if (len(results)) == 0 {
-		return annotations{}, false, nil
+			fmt.Errorf("failed looking up annotations for contentUUID %s: %w", contentUUID, err)
 	}
 
 	var mappedAnnotations []annotation

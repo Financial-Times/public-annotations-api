@@ -9,14 +9,18 @@ __Provides a public API for Annotations stored in a Neo4J graph database__
 go get -u github.com/Financial-Times/public-annotations-api
 cd $GOPATH/src/github.com/Financial-Times/public-annotations-api
 go build -mod=readonly
-./public-annotations-api --neo-url={neo4jUrl} --port={port} --log-level={DEBUG|INFO|WARN|ERROR}--cache-duration{e.g. 22h10m3s}
+./public-annotations-api
 ```
 
+Command line options:
 ```sh
-_Optional arguments are:
---neo-url defaults to http://localhost:7474/db/data, which is the out of box url for a local neo4j instance.
---port defaults to 8080.
---cache-duration defaults to 1 hour._
+--neo-url            neo4j endpoint URL (env $NEO_URL) (default "bolt://localhost:7687")
+--port               Port to listen on (env $PORT) (default "8080")
+--env                environment this app is running in (default "local")
+--cache-duration     Duration Get requests should be cached for. e.g. 2h45m would set the max-age value to '7440' seconds (env $CACHE_DURATION) (default "30s")
+--log-level          Log level for the service (env $LOG_LEVEL) (default "info")
+--dbDriverLogLevel   Db's driver logging level (DEBUG, INFO, WARN, ERROR) (env $DB_DRIVER_LOG_LEVEL) (default "WARN")
+--api-yml            Location of the API Swagger YML file. (env $API_YML) (default "./api.yml")
 ```
 
 * `curl http://localhost:8080/content/143ba45c-2fb3-35bc-b227-a6ed80b5c517/annotations | json_pp`
@@ -27,15 +31,17 @@ _Optional arguments are:
 * Run unit tests only: `go test -race ./...`
 * Run unit and integration tests:
 
-```sh
-docker-compose -f docker-compose-tests.yml up -d --build && \
-docker logs -f test-runner && \
-docker-compose -f docker-compose-tests.yml down
-```
+    In order to execute the integration tests you must provide GITHUB_USERNAME and GITHUB_TOKEN values, because the service is depending on internal repositories.
+    ```sh
+    GITHUB_USERNAME=<username> GITHUB_TOKEN=<token> \
+    docker-compose -f docker-compose-tests.yml up -d --build && \
+    docker logs -f test-runner && \
+    docker-compose -f docker-compose-tests.yml down
+    ```
 
 ## Build & deployment
 
-Continuosly built by CircleCI. The docker image of the service is built by Dockerhub based on the git release tag.
+Continuously built by CircleCI. The docker image of the service is built by Dockerhub based on the git release tag.
 To prepare a new git release, go to the repo page on GitHub and create a new release.
 
 * Cluster deployment:  [public-annotations-api](https://upp-k8s-jenkins.in.ft.com/job/k8s-deployment/job/apps-deployment/job/public-annotations-api-auto-deploy/)

@@ -5,7 +5,8 @@
       "prefLabel": "The Ball Street Journal",
       "types": [
           "http://www.ft.com/ontology/organisation/Broken"
-      ]
+      ],
+      "predicate": "mentions"
     },
     "provenances": [
       {
