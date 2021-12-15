@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package annotations
@@ -12,12 +13,11 @@ import (
 	"testing"
 
 	annrw "github.com/Financial-Times/annotations-rw-neo4j/v4/annotations"
-	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
+	"github.com/Financial-Times/base-ft-rw-app-go/v2/baseftrwapp"
 	cmneo4j "github.com/Financial-Times/cm-neo4j-driver"
 	"github.com/Financial-Times/concepts-rw-neo4j/concepts"
 	"github.com/Financial-Times/content-rw-neo4j/v3/content"
 	"github.com/Financial-Times/go-logger/v2"
-	"github.com/Financial-Times/neo-utils-go/v2/neoutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -135,7 +135,6 @@ func init() {
 
 type cypherDriverTestSuite struct {
 	suite.Suite
-	db     neoutils.NeoConnection
 	driver *cmneo4j.Driver
 }
 
@@ -156,9 +155,9 @@ func newCypherDriverTestSuite() *cypherDriverTestSuite {
 }
 
 func (s *cypherDriverTestSuite) SetupTest() {
-	s.db = getDatabaseConnection(s.T())
+	log := logger.NewUPPLogger("public-annotations-api-cm-neo4j", "PANIC")
 	s.driver = getNeo4jDriver(s.T())
-	writeAllDataToDB(s.T(), s.db, s.driver)
+	writeAllDataToDB(s.T(), s.driver, log)
 }
 
 func (s *cypherDriverTestSuite) TearDownTest() {
@@ -172,7 +171,7 @@ func getNeo4jDriver(t *testing.T) *cmneo4j.Driver {
 	}
 
 	l := logger.NewUPPLogger("public-annotations-api-cm-neo4j", "PANIC")
-	url := os.Getenv("NEO4J_BOLT_TEST_URL")
+	url := os.Getenv("NEO4J_TEST_URL")
 	if url == "" {
 		url = "bolt://localhost:7687"
 	}
@@ -180,25 +179,6 @@ func getNeo4jDriver(t *testing.T) *cmneo4j.Driver {
 	driver, err := cmneo4j.NewDefaultDriver(url, l)
 	require.NoError(t, err, "could not create a new cm-neo4j-driver")
 	return driver
-}
-
-func getDatabaseConnection(t *testing.T) neoutils.NeoConnection {
-	l := logger.NewUPPLogger("test-public-annotations-api", "PANIC")
-	if testing.Short() {
-		t.Skip("Skipping Neo4j integration tests.")
-		return nil
-	}
-
-	url := os.Getenv("NEO4J_TEST_URL")
-	if url == "" {
-		url = "http://localhost:7474/db/data"
-	}
-
-	conf := neoutils.DefaultConnectionConfig()
-	conf.Transactional = false
-	db, err := neoutils.Connect(url, conf, l)
-	require.NoError(t, err, "Failed to connect to Neo4j")
-	return db
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveMultipleAnnotations() {
@@ -392,12 +372,13 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationWithHasBrand() {
 
 func (s *cypherDriverTestSuite) TestTransitivePropertyOfImpliedBy() {
 	t := s.T()
-	db := s.db
+	driver := s.driver
 
-	contentRW := content.NewCypherContentService(db)
+	contentRW := content.NewContentService(driver)
 	assert.NoError(t, contentRW.Initialise())
 
-	conceptRW := concepts.NewConceptService(db)
+	log := logger.NewUPPLogger("public-annotations-api-test", "PANIC")
+	conceptRW := concepts.NewConceptService(driver, log)
 	assert.NoError(t, conceptRW.Initialise())
 
 	annotationRW := annrw.NewCypherAnnotationsService(s.driver)
@@ -463,12 +444,13 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithImpliedBy() {
 
 	//setup
 	t := s.T()
-	db := s.db
+	driver := s.driver
 
-	contentRW := content.NewCypherContentService(db)
+	contentRW := content.NewContentService(driver)
 	assert.NoError(t, contentRW.Initialise())
 
-	conceptRW := concepts.NewConceptService(db)
+	log := logger.NewUPPLogger("public-annotations-api-test", "PANIC")
+	conceptRW := concepts.NewConceptService(driver, log)
 	assert.NoError(t, conceptRW.Initialise())
 
 	annotationRW := annrw.NewCypherAnnotationsService(s.driver)
@@ -553,11 +535,11 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithImpliedBy() {
 
 func TestRetrieveNoAnnotationsWhenThereAreNonePresentExceptBrands(t *testing.T) {
 	assert := assert.New(t)
-	db := getDatabaseConnection(t)
 	driver := getNeo4jDriver(t)
+	log := logger.NewUPPLogger("public-annotations-api-test", "PANIC")
 
-	writeContent(t, db)
-	writeBrands(t, db)
+	writeContent(t, driver)
+	writeBrands(t, driver, log)
 
 	defer cleanDB(t, driver)
 
@@ -571,20 +553,21 @@ func TestRetrieveNoAnnotationsWhenThereAreNonePresentExceptBrands(t *testing.T) 
 
 func TestRetrieveAnnotationWithCorrectValues(t *testing.T) {
 	assert := assert.New(t)
-	db := getDatabaseConnection(t)
-	driver := getNeo4jDriver(t)
-	writeContent(t, db)
-	writeOrganisations(t, db)
-	writeFinancialInstruments(t, db)
-	writeV2Annotations(t, driver)
-	defer cleanDB(t, driver)
+	d := getNeo4jDriver(t)
+	log := logger.NewUPPLogger("public-annotations-api-test", "PANIC")
+
+	writeContent(t, d)
+	writeOrganisations(t, d, log)
+	writeFinancialInstruments(t, d, log)
+	writeV2Annotations(t, d)
+	defer cleanDB(t, d)
 
 	expectedAnnotations := annotations{
 		getExpectedMentionsFakebookAnnotation(v2Lifecycle),
 		getExpectedMallStreetJournalAnnotation(v2Lifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(driver, "prod")
+	annotationsDriver := NewCypherDriver(d, "prod")
 	anns := getAndCheckAnnotations(annotationsDriver, contentUUID, t)
 
 	assert.Equal(len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
@@ -603,10 +586,9 @@ func TestRetrieveAnnotationWithCorrectValues(t *testing.T) {
 
 func TestRetrieveNoAnnotationsWhenThereAreNoConceptsPresent(t *testing.T) {
 	assert := assert.New(t)
-	db := getDatabaseConnection(t)
 	driver := getNeo4jDriver(t)
 
-	writeContent(t, db)
+	writeContent(t, driver)
 	writeV1Annotations(t, driver)
 	writeV2Annotations(t, driver)
 
@@ -622,14 +604,14 @@ func TestRetrieveNoAnnotationsWhenThereAreNoConceptsPresent(t *testing.T) {
 
 func TestRetrieveAnnotationsWithNAICSOrganisation(t *testing.T) {
 	assert := assert.New(t)
-	db := getDatabaseConnection(t)
 	driver := getNeo4jDriver(t)
 	annService := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(annService.Initialise())
+	log := logger.NewUPPLogger("public-annotations-api-test", "PANIC")
 
-	writeContent(t, db)
-	writeOrganisations(t, db)
-	writeFinancialInstruments(t, db)
+	writeContent(t, driver)
+	writeOrganisations(t, driver, log)
+	writeFinancialInstruments(t, driver, log)
 	writeV2Annotations(t, driver)
 	defer cleanDB(t, driver)
 
@@ -663,22 +645,22 @@ func getAndCheckAnnotations(driver CypherDriver, contentUUID string, t *testing.
 }
 
 // Utility functions
-func writeAllDataToDB(t testing.TB, db neoutils.NeoConnection, driver *cmneo4j.Driver) {
-	writeBrands(t, db)
-	writeContent(t, db)
-	writeOrganisations(t, db)
-	writePeople(t, db)
-	writeFinancialInstruments(t, db)
-	writeSubjects(t, db)
-	writeAlphavilleSeries(t, db)
-	writeGenres(t, db)
-	writeV1Annotations(t, driver)
-	writeV2Annotations(t, driver)
-	writeTopics(t, db)
+func writeAllDataToDB(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
+	writeBrands(t, d, log)
+	writeContent(t, d)
+	writeOrganisations(t, d, log)
+	writePeople(t, d, log)
+	writeFinancialInstruments(t, d, log)
+	writeSubjects(t, d, log)
+	writeAlphavilleSeries(t, d, log)
+	writeGenres(t, d, log)
+	writeV1Annotations(t, d)
+	writeV2Annotations(t, d)
+	writeTopics(t, d, log)
 }
 
-func writeBrands(t testing.TB, db neoutils.NeoConnection) concepts.ConceptService {
-	brandRW := concepts.NewConceptService(db)
+func writeBrands(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+	brandRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, brandRW.Initialise())
 	writeJSONToService(brandRW, "./testdata/Brand-dbb0bdae-1f0c-1a1a-b0cb-b2227cce2b54-parent.json", t)
 	writeJSONToService(brandRW, "./testdata/Brand-ff691bf8-8d92-1a1a-8326-c273400bff0b-child.json", t)
@@ -690,8 +672,8 @@ func writeBrands(t testing.TB, db neoutils.NeoConnection) concepts.ConceptServic
 	return brandRW
 }
 
-func writeContent(t testing.TB, db neoutils.NeoConnection) baseftrwapp.Service {
-	contentRW := content.NewCypherContentService(db)
+func writeContent(t testing.TB, d *cmneo4j.Driver) baseftrwapp.Service {
+	contentRW := content.NewContentService(d)
 	assert.NoError(t, contentRW.Initialise())
 	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-4f7f-961a-e5065392bb31.json", t)
 	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-1a1a-961a-e5065392bb31.json", t)
@@ -705,8 +687,8 @@ func writeContent(t testing.TB, db neoutils.NeoConnection) baseftrwapp.Service {
 	return contentRW
 }
 
-func writeTopics(t testing.TB, db neoutils.NeoConnection) concepts.ConceptService {
-	topicsRW := concepts.NewConceptService(db)
+func writeTopics(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+	topicsRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, topicsRW.Initialise())
 	writeJSONToService(topicsRW, "./testdata/Topics-7e22c8b8-b280-4e52-aa22-fa1c6dffd894.json", t)
 	writeJSONToService(topicsRW, "./testdata/Topics-b6469cc2-f6ff-45aa-a9bb-3d1bb0f9a35d.json", t)
@@ -717,8 +699,8 @@ func writeTopics(t testing.TB, db neoutils.NeoConnection) concepts.ConceptServic
 	return topicsRW
 }
 
-func writeOrganisations(t testing.TB, db neoutils.NeoConnection) concepts.ConceptService {
-	organisationRW := concepts.NewConceptService(db)
+func writeOrganisations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+	organisationRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, organisationRW.Initialise())
 	writeJSONToService(organisationRW, "./testdata/Organisation-MSJ-5d1510f8-2779-4b74-adab-0a5eb138fca6.json", t)
 	writeJSONToService(organisationRW, "./testdata/Organisation-Fakebook-eac853f5-3859-4c08-8540-55e043719400.json", t)
@@ -727,36 +709,36 @@ func writeOrganisations(t testing.TB, db neoutils.NeoConnection) concepts.Concep
 	return organisationRW
 }
 
-func writePeople(t testing.TB, db neoutils.NeoConnection) concepts.ConceptService {
-	peopleRW := concepts.NewConceptService(db)
+func writePeople(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+	peopleRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, peopleRW.Initialise())
 	writeJSONToService(peopleRW, "./testdata/People-75e2f7e9-cb5e-40a5-a074-86d69fe09f69.json", t)
 	return peopleRW
 }
 
-func writeFinancialInstruments(t testing.TB, db neoutils.NeoConnection) concepts.ConceptService {
-	fiRW := concepts.NewConceptService(db)
+func writeFinancialInstruments(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+	fiRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, fiRW.Initialise())
 	writeJSONToService(fiRW, "./testdata/FinancialInstrument-77f613ad-1470-422c-bf7c-1dd4c3fd1693.json", t)
 	return fiRW
 }
 
-func writeSubjects(t testing.TB, db neoutils.NeoConnection) concepts.ConceptService {
-	subjectsRW := concepts.NewConceptService(db)
+func writeSubjects(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+	subjectsRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, subjectsRW.Initialise())
 	writeJSONToService(subjectsRW, "./testdata/Subject-MetalMickey-0483bef8-5797-40b8-9b25-b12e492f63c6.json", t)
 	return subjectsRW
 }
 
-func writeAlphavilleSeries(t testing.TB, db neoutils.NeoConnection) concepts.ConceptService {
-	alphavilleSeriesRW := concepts.NewConceptService(db)
+func writeAlphavilleSeries(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+	alphavilleSeriesRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, alphavilleSeriesRW.Initialise())
 	writeJSONToService(alphavilleSeriesRW, "./testdata/TestAlphavilleSeries.json", t)
 	return alphavilleSeriesRW
 }
 
-func writeGenres(t testing.TB, db neoutils.NeoConnection) {
-	genresRW := concepts.NewConceptService(db)
+func writeGenres(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
+	genresRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, genresRW.Initialise())
 	writeJSONToService(genresRW, "./testdata/Genre-6da31a37-691f-4908-896f-2829ebe2309e-opinion.json", t)
 }
