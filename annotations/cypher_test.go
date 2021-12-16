@@ -659,7 +659,7 @@ func writeAllDataToDB(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
 	writeTopics(t, d, log)
 }
 
-func writeBrands(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+func writeBrands(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
 	brandRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, brandRW.Initialise())
 	writeJSONToService(brandRW, "./testdata/Brand-dbb0bdae-1f0c-1a1a-b0cb-b2227cce2b54-parent.json", t)
@@ -669,10 +669,9 @@ func writeBrands(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concept
 	writeJSONToService(brandRW, "./testdata/Brand-ff691bf8-8d92-4a4a-8326-c273400bff0b-circular_b.json", t)
 	writeJSONToService(brandRW, "./testdata/Brand-2d3e16e0-61cb-4322-8aff-3b01c59f4daa-true-brand.json", t)
 	writeJSONToService(brandRW, "./testdata/Brand-87645070-7d8a-492e-9695-bf61ac2b4d18-hub-page.json", t)
-	return brandRW
 }
 
-func writeContent(t testing.TB, d *cmneo4j.Driver) baseftrwapp.Service {
+func writeContent(t testing.TB, d *cmneo4j.Driver) {
 	contentRW := content.NewContentService(d)
 	assert.NoError(t, contentRW.Initialise())
 	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-4f7f-961a-e5065392bb31.json", t)
@@ -684,7 +683,6 @@ func writeContent(t testing.TB, d *cmneo4j.Driver) baseftrwapp.Service {
 	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-6a6a-961a-e5065392bb31.json", t)
 	writeJSONToBaseService(contentRW, "./testdata/Content-3fc9fe3e-af8c-7a7a-961a-e5065392bb31.json", t)
 	writeJSONToBaseService(contentRW, "./testdata/Content-ae17012e-ad40-11e9-8030-530adfa879c2.json", t)
-	return contentRW
 }
 
 func writeTopics(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
@@ -699,14 +697,13 @@ func writeTopics(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concept
 	return topicsRW
 }
 
-func writeOrganisations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+func writeOrganisations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
 	organisationRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, organisationRW.Initialise())
 	writeJSONToService(organisationRW, "./testdata/Organisation-MSJ-5d1510f8-2779-4b74-adab-0a5eb138fca6.json", t)
 	writeJSONToService(organisationRW, "./testdata/Organisation-Fakebook-eac853f5-3859-4c08-8540-55e043719400.json", t)
 	writeJSONToService(organisationRW, "./testdata/NAICSIndustryClassification-38ee195d-ebdd-48a9-af4b-c8a322e7b04d.json", t)
 	writeJSONToService(organisationRW, "./testdata/Organisation-NYT-0d9fbdfc-7d95-332b-b77b-1e69274b1b83.json", t)
-	return organisationRW
 }
 
 func writePeople(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
@@ -716,11 +713,10 @@ func writePeople(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concept
 	return peopleRW
 }
 
-func writeFinancialInstruments(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
+func writeFinancialInstruments(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
 	fiRW := concepts.NewConceptService(d, log)
 	assert.NoError(t, fiRW.Initialise())
 	writeJSONToService(fiRW, "./testdata/FinancialInstrument-77f613ad-1470-422c-bf7c-1dd4c3fd1693.json", t)
-	return fiRW
 }
 
 func writeSubjects(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
