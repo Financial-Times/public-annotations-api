@@ -34,6 +34,7 @@ func TestGTGUnhealthyCluster(t *testing.T) {
 	// directly and pass in our Request and ResponseRecorder.
 	handler.ServeHTTP(rr, req)
 	actual := rr.Result()
+	defer actual.Body.Close()
 
 	// Series of verifications:
 	assert.Equal(t, http.StatusServiceUnavailable, actual.StatusCode, "status code")
@@ -62,6 +63,7 @@ func TestGTGHealthyCluster(t *testing.T) {
 	// directly and pass in our Request and ResponseRecorder.
 	handler.ServeHTTP(rr, req)
 	actual := rr.Result()
+	defer actual.Body.Close()
 
 	// Series of verifications:
 	assert.Equal(t, http.StatusOK, actual.StatusCode, "status code")
