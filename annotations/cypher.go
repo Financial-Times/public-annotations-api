@@ -10,7 +10,7 @@ import (
 )
 
 type driver interface {
-	read(id string) (anns annotations, found bool, err error)
+	read(id string) (anns Annotations, found bool, err error)
 	checkConnectivity() error
 }
 
@@ -54,7 +54,7 @@ type neoAnnotation struct {
 	PlatformVersion string   `json:"platformVersion,omitempty"`
 }
 
-func (cd CypherDriver) read(contentUUID string) (anns annotations, found bool, err error) {
+func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, err error) {
 	var results []neoAnnotation
 
 	query := &cmneo4j.Query{
@@ -127,14 +127,14 @@ func (cd CypherDriver) read(contentUUID string) (anns annotations, found bool, e
 
 	err = cd.driver.Read(query)
 	if errors.Is(err, cmneo4j.ErrNoResultsFound) {
-		return annotations{}, false, nil
+		return Annotations{}, false, nil
 	}
 	if err != nil {
-		return annotations{}, false,
+		return Annotations{}, false,
 			fmt.Errorf("failed looking up annotations for contentUUID %s: %w", contentUUID, err)
 	}
 
-	var mappedAnnotations []annotation
+	var mappedAnnotations []Annotation
 	found = false
 
 	for idx := range results {
@@ -148,8 +148,8 @@ func (cd CypherDriver) read(contentUUID string) (anns annotations, found bool, e
 	return mappedAnnotations, found, nil
 }
 
-func mapToResponseFormat(neoAnn neoAnnotation, env string) (annotation, error) {
-	var ann annotation
+func mapToResponseFormat(neoAnn neoAnnotation, env string) (Annotation, error) {
+	var ann Annotation
 
 	ann.PrefLabel = neoAnn.PrefLabel
 	ann.LeiCode = neoAnn.LeiCode

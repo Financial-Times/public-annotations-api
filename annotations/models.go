@@ -1,6 +1,6 @@
 package annotations
 
-type annotations []annotation
+type Annotations []Annotation
 
 type IndustryClassification struct {
 	Identifier string `json:"identifier"`
@@ -8,7 +8,7 @@ type IndustryClassification struct {
 	Rank       int    `json:"rank"`
 }
 
-type annotation struct {
+type Annotation struct {
 	Predicate string                   `json:"predicate"`
 	ID        string                   `json:"id"`
 	APIURL    string                   `json:"apiUrl"`

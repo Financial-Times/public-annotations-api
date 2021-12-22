@@ -30,8 +30,8 @@ func TestGetHandler(t *testing.T) {
 			name: "Success",
 			req:  newRequest("GET", fmt.Sprintf("/content/%s/annotations", knownUUID), "application/json", nil),
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns annotations, found bool, err error) {
-					return []annotation{}, true, nil
+				readFunc: func(string) (anns Annotations, found bool, err error) {
+					return []Annotation{}, true, nil
 				},
 			},
 			expectedStatusCode: http.StatusOK,
@@ -41,8 +41,8 @@ func TestGetHandler(t *testing.T) {
 			name: "NotFound",
 			req:  newRequest("GET", fmt.Sprintf("/content/%s/annotations", "99999"), "application/json", nil),
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns annotations, found bool, err error) {
-					return []annotation{}, false, nil
+				readFunc: func(string) (anns Annotations, found bool, err error) {
+					return []Annotation{}, false, nil
 				},
 			},
 			expectedStatusCode: http.StatusNotFound,
@@ -52,7 +52,7 @@ func TestGetHandler(t *testing.T) {
 			name: "ReadError",
 			req:  newRequest("GET", fmt.Sprintf("/content/%s/annotations", knownUUID), "application/json", nil),
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns annotations, found bool, err error) {
+				readFunc: func(string) (anns Annotations, found bool, err error) {
 					return nil, false, errors.New("TEST failing to READ")
 				},
 			},
@@ -82,12 +82,12 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 		lifecycleParams     string
 		expectedStatusCode  int
 		expectedBody        string
-		expectedAnnotations annotations
+		expectedAnnotations Annotations
 	}{
 		"request with valid lifecycle parameter should succeed": {
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns annotations, found bool, err error) {
-					return []annotation{}, true, nil
+				readFunc: func(string) (anns Annotations, found bool, err error) {
+					return []Annotation{}, true, nil
 				},
 			},
 			lifecycleParams:    "lifecycle=pac",
@@ -96,8 +96,8 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 		},
 		"request with invalid lifecycle parameter should fail": {
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns annotations, found bool, err error) {
-					return []annotation{}, true, nil
+				readFunc: func(string) (anns Annotations, found bool, err error) {
+					return []Annotation{}, true, nil
 				},
 			},
 			lifecycleParams:    "lifecycle=invalid",
@@ -106,18 +106,18 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 		},
 		"request with lifecycle parameters should apply additional filtering": {
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns annotations, found bool, err error) {
-					return []annotation{pacAnnotationA, pacAnnotationB, v1AnnotationA, v1AnnotationB, v2AnnotationA, v2AnnotationB}, true, nil
+				readFunc: func(string) (anns Annotations, found bool, err error) {
+					return []Annotation{pacAnnotationA, pacAnnotationB, v1AnnotationA, v1AnnotationB, v2AnnotationA, v2AnnotationB}, true, nil
 				},
 			},
 			lifecycleParams:    "lifecycle=pac&lifecycle=v1",
 			expectedStatusCode: http.StatusOK,
-			expectedAnnotations: annotations{
-				annotation{
+			expectedAnnotations: Annotations{
+				Annotation{
 					Predicate: "http://www.ft.com/ontology/annotation/about",
 					ID:        "6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18",
 				},
-				annotation{
+				Annotation{
 					Predicate: "http://www.ft.com/ontology/annotation/mentions",
 					ID:        "0ab61bfc-a2b1-4b08-a864-4233fd72f250",
 				},
@@ -147,7 +147,7 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 				return
 			}
 
-			actualAnns := annotations{}
+			actualAnns := Annotations{}
 			err = json.Unmarshal(rec.Body.Bytes(), &actualAnns)
 			if err != nil {
 				t.Fatal(err)
@@ -169,8 +169,8 @@ func TestMethodeNotFound(t *testing.T) {
 			name: "NotFound",
 			req:  newRequest("GET", fmt.Sprintf("/content/%s/annotations/", knownUUID), "application/json", nil),
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns annotations, found bool, err error) {
-					return []annotation{}, true, nil
+				readFunc: func(string) (anns Annotations, found bool, err error) {
+					return []Annotation{}, true, nil
 				},
 			},
 			expectedStatusCode: http.StatusNotFound,
@@ -207,11 +207,11 @@ func message(errMsg string) string {
 }
 
 type mockDriver struct {
-	readFunc              func(string) (annotations, bool, error)
+	readFunc              func(string) (Annotations, bool, error)
 	checkConnectivityFunc func() error
 }
 
-func (md mockDriver) read(contentUUID string) (annotations, bool, error) {
+func (md mockDriver) read(contentUUID string) (Annotations, bool, error) {
 	if md.readFunc == nil {
 		return nil, false, errors.New("not implemented")
 	}

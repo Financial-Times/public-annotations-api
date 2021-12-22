@@ -31,7 +31,7 @@ func withLifecycles(lifecycles []string) func(*lifecycleFilter) {
 	}
 }
 
-func (f *lifecycleFilter) filter(annotations []annotation, chain *annotationsFilterChain) []annotation {
+func (f *lifecycleFilter) filter(annotations []Annotation, chain *annotationsFilterChain) []Annotation {
 	if containsPACLifecycle(annotations) {
 		filtered := filterPACAndV2Lifecycles(annotations)
 		return chain.doNext(f.applyAdditionalFiltering(filtered))
@@ -40,12 +40,12 @@ func (f *lifecycleFilter) filter(annotations []annotation, chain *annotationsFil
 	return chain.doNext(f.applyAdditionalFiltering(annotations))
 }
 
-func (f *lifecycleFilter) applyAdditionalFiltering(annotations []annotation) []annotation {
+func (f *lifecycleFilter) applyAdditionalFiltering(annotations []Annotation) []Annotation {
 	if len(f.lifecycles) == 0 {
 		return annotations
 	}
 
-	var filtered []annotation
+	var filtered []Annotation
 	for _, annotation := range annotations {
 		for _, lc := range f.lifecycles {
 			if annotation.Lifecycle == lifecycleMap[lc] {
@@ -56,7 +56,7 @@ func (f *lifecycleFilter) applyAdditionalFiltering(annotations []annotation) []a
 	return filtered
 }
 
-func containsPACLifecycle(annotations []annotation) bool {
+func containsPACLifecycle(annotations []Annotation) bool {
 	for _, annotation := range annotations {
 		if annotation.Lifecycle == pacLifecycle {
 			return true
@@ -65,8 +65,8 @@ func containsPACLifecycle(annotations []annotation) bool {
 	return false
 }
 
-func filterPACAndV2Lifecycles(annotations []annotation) []annotation {
-	var filtered []annotation
+func filterPACAndV2Lifecycles(annotations []Annotation) []Annotation {
+	var filtered []Annotation
 	for _, annotation := range annotations {
 		if annotation.Lifecycle == pacLifecycle || annotation.Lifecycle == v2Lifecycle {
 			filtered = append(filtered, annotation)

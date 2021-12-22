@@ -21,157 +21,157 @@ const (
 
 // Test case definitions taken from https://www.lucidchart.com/documents/edit/df1fead1-5e99-4e92-b23d-fb3cee7f17f2/1?kme=Clicked%20E-mail%20Link&kmi=julia.fernee@ft.com&km_Link=DocInviteButton&km_DocInviteUserArm=T-B
 var tests = map[string]struct {
-	input          []annotation
-	expectedOutput []annotation
+	input          []Annotation
+	expectedOutput []Annotation
 }{
 
 	"1. Returns one occurrence of Mentions for this concept": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: MENTIONS, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: MENTIONS, ID: ConceptA},
 		},
 	},
 	"2. Returns one occurrence of Major Mentions for this concept": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: MAJOR_MENTIONS, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: MAJOR_MENTIONS, ID: ConceptA},
 		},
 	},
 	"3. Returns one occurrence of About for this concept": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: MAJOR_MENTIONS, ID: ConceptA},
 			{Predicate: ABOUT, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: ABOUT, ID: ConceptA},
 		},
 	},
 	"4. Returns one occurrence of About for this concept": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: MENTIONS, ID: ConceptA},
 			{Predicate: MAJOR_MENTIONS, ID: ConceptA},
 			{Predicate: ABOUT, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: ABOUT, ID: ConceptA},
 		},
 	},
 	"5. Returns one occurrence of Is Classified By for this concept": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: IS_CLASSIFIED_BY, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: IS_CLASSIFIED_BY, ID: ConceptA},
 		},
 	},
 	"6. Returns one occurrence of Is Primarily Classified By for this concept": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: IS_PRIMARILY_CLASSIFIED_BY, ID: ConceptA},
 			{Predicate: IS_CLASSIFIED_BY, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: IS_PRIMARILY_CLASSIFIED_BY, ID: ConceptA},
 		},
 	},
 	"7. Returns Has Author & Major Mentions for this concept": {
-		[]annotation{
+		[]Annotation{
 
 			{Predicate: MAJOR_MENTIONS, ID: ConceptA},
 			{Predicate: HAS_AUTHOR, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: MAJOR_MENTIONS, ID: ConceptA},
 			{Predicate: HAS_AUTHOR, ID: ConceptA},
 		},
 	},
 	"8. Returns Has Author & About for this concept": {
-		[]annotation{
+		[]Annotation{
 
 			{Predicate: ABOUT, ID: ConceptA},
 			{Predicate: MAJOR_MENTIONS, ID: ConceptA},
 			{Predicate: HAS_AUTHOR, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: ABOUT, ID: ConceptA},
 			{Predicate: HAS_AUTHOR, ID: ConceptA},
 		},
 	},
 	"9. Returns About for this concept": {
-		[]annotation{
+		[]Annotation{
 
 			{Predicate: ABOUT, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: ABOUT, ID: ConceptA},
 		},
 	},
 	"10. Returns About for this concept": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: MENTIONS, ID: ConceptA},
 			{Predicate: ABOUT, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: ABOUT, ID: ConceptA},
 		},
 	},
 	"11. Returns one occurrence of Is Primarily Classified By for this concept": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: IS_PRIMARILY_CLASSIFIED_BY, ID: ConceptA},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: IS_PRIMARILY_CLASSIFIED_BY, ID: ConceptA},
 		},
 	},
 	"12. Returns About annotation for one concept and Mentions annotations for another": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: MAJOR_MENTIONS, ID: ConceptA},
 			{Predicate: ABOUT, ID: ConceptA},
 			{Predicate: MENTIONS, ID: ConceptB},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: ABOUT, ID: ConceptA},
 			{Predicate: MENTIONS, ID: ConceptB},
 		},
 	},
 	"13. Returns Is Primarily Classified By annotation for one concept and Is Classified By annotations for another": {
-		[]annotation{
+		[]Annotation{
 			{Predicate: IS_CLASSIFIED_BY, ID: ConceptA},
 			{Predicate: IS_PRIMARILY_CLASSIFIED_BY, ID: ConceptA},
 			{Predicate: IS_CLASSIFIED_BY, ID: ConceptB},
 		},
-		[]annotation{
+		[]Annotation{
 			{Predicate: IS_PRIMARILY_CLASSIFIED_BY, ID: ConceptA},
 			{Predicate: IS_CLASSIFIED_BY, ID: ConceptB},
 		},
 	},
 	"14. IsClassifiedBy should be with highest priority": {
-		input: []annotation{
+		input: []Annotation{
 			{Predicate: IS_CLASSIFIED_BY, ID: ConceptA},
 			{Predicate: IMPLICITLY_CLASSIFIED_BY, ID: ConceptA},
 			{Predicate: HAS_BRAND, ID: ConceptA},
 		},
-		expectedOutput: []annotation{
+		expectedOutput: []Annotation{
 			{Predicate: IS_CLASSIFIED_BY, ID: ConceptA},
 		},
 	},
 	"15. HasBrand should be with higher priority than ImplicitlyClassifiedBy": {
-		input: []annotation{
+		input: []Annotation{
 			{Predicate: HAS_BRAND, ID: ConceptA},
 			{Predicate: IMPLICITLY_CLASSIFIED_BY, ID: ConceptA},
 		},
-		expectedOutput: []annotation{
+		expectedOutput: []Annotation{
 			{Predicate: HAS_BRAND, ID: ConceptA},
 		},
 	},
 	"16. Returns one occurrence of Implicitly Classified By for one concept": {
-		input: []annotation{
+		input: []Annotation{
 			{Predicate: IMPLICITLY_CLASSIFIED_BY, ID: ConceptA},
 		},
-		expectedOutput: []annotation{
+		expectedOutput: []Annotation{
 			{Predicate: IMPLICITLY_CLASSIFIED_BY, ID: ConceptA},
 		},
 	},
@@ -196,11 +196,11 @@ func TestFilterForBasicSingleConcept(t *testing.T) {
 
 //Tests support for sort needed by other tests in order to compare 2 arrays of annotations
 func TestSortAnnotations(t *testing.T) {
-	expected := []annotation{
+	expected := []Annotation{
 		{Predicate: IS_CLASSIFIED_BY, ID: "1"},
 		{Predicate: IS_PRIMARILY_CLASSIFIED_BY, ID: "2"},
 	}
-	test := []annotation{
+	test := []Annotation{
 		{Predicate: IS_PRIMARILY_CLASSIFIED_BY, ID: "2"},
 		{Predicate: IS_CLASSIFIED_BY, ID: "1"},
 	}
@@ -212,14 +212,14 @@ func TestSortAnnotations(t *testing.T) {
 }
 
 //Implementation of sort for an array of structs in order to compare equality of 2 arrays of annotations
-type By func(p1, p2 *annotation) bool
+type By func(p1, p2 *Annotation) bool
 
 type AnnotationSorter struct {
-	annotations []annotation
-	by          func(a1, a2 *annotation) bool
+	annotations []Annotation
+	by          func(a1, a2 *Annotation) bool
 }
 
-func (by By) Sort(unsorted []annotation) {
+func (by By) Sort(unsorted []Annotation) {
 	sorter := &AnnotationSorter{
 		annotations: unsorted,
 		by:          by,
@@ -239,6 +239,6 @@ func (s *AnnotationSorter) Less(i, j int) bool {
 	return s.by(&s.annotations[i], &s.annotations[j])
 }
 
-func byUUID(a1, a2 *annotation) bool {
+func byUUID(a1, a2 *Annotation) bool {
 	return a1.ID < a2.ID
 }
