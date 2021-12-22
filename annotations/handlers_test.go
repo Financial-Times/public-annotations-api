@@ -1,7 +1,6 @@
 package annotations
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,7 +27,7 @@ func TestGetHandler(t *testing.T) {
 	}{
 		{
 			name: "Success",
-			req:  newRequest("GET", fmt.Sprintf("/content/%s/annotations", knownUUID), "application/json", nil),
+			req:  newRequest(fmt.Sprintf("/content/%s/annotations", knownUUID)),
 			annotationsDriver: mockDriver{
 				readFunc: func(string) (anns Annotations, found bool, err error) {
 					return []Annotation{}, true, nil
@@ -39,7 +38,7 @@ func TestGetHandler(t *testing.T) {
 		},
 		{
 			name: "NotFound",
-			req:  newRequest("GET", fmt.Sprintf("/content/%s/annotations", "99999"), "application/json", nil),
+			req:  newRequest(fmt.Sprintf("/content/%s/annotations", "99999")),
 			annotationsDriver: mockDriver{
 				readFunc: func(string) (anns Annotations, found bool, err error) {
 					return []Annotation{}, false, nil
@@ -50,7 +49,7 @@ func TestGetHandler(t *testing.T) {
 		},
 		{
 			name: "ReadError",
-			req:  newRequest("GET", fmt.Sprintf("/content/%s/annotations", knownUUID), "application/json", nil),
+			req:  newRequest(fmt.Sprintf("/content/%s/annotations", knownUUID)),
 			annotationsDriver: mockDriver{
 				readFunc: func(string) (anns Annotations, found bool, err error) {
 					return nil, false, errors.New("TEST failing to READ")
@@ -167,7 +166,7 @@ func TestMethodeNotFound(t *testing.T) {
 	}{
 		{
 			name: "NotFound",
-			req:  newRequest("GET", fmt.Sprintf("/content/%s/annotations/", knownUUID), "application/json", nil),
+			req:  newRequest(fmt.Sprintf("/content/%s/annotations/", knownUUID)),
 			annotationsDriver: mockDriver{
 				readFunc: func(string) (anns Annotations, found bool, err error) {
 					return []Annotation{}, true, nil
@@ -193,12 +192,12 @@ func TestMethodeNotFound(t *testing.T) {
 	}
 }
 
-func newRequest(method, url, contentType string, body []byte) *http.Request {
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
+func newRequest(url string) *http.Request {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		panic(err)
 	}
-	req.Header.Add("Content-Type", contentType)
+	req.Header.Add("Content-Type", "application/json")
 	return req
 }
 
