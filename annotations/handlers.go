@@ -60,19 +60,11 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 		annotations, found, err := hctx.AnnotationsDriver.read(uuid)
 		if err != nil {
 			hctx.Log.WithError(err).WithUUID(uuid).Error("failed getting annotations for content")
-			w.WriteHeader(http.StatusServiceUnavailable)
-			msg := fmt.Sprintf(`{"message":"Error getting annotations for content with uuid %s"}`, uuid)
-			if _, err = w.Write([]byte(msg)); err != nil {
-				hctx.Log.WithError(err).Errorf("Error while writing response: %s", msg)
-			}
+			writeResponseError(hctx, w, http.StatusServiceUnavailable, uuid, `{"message":"Error getting annotations for content with uuid %s"}`)
 			return
 		}
 		if !found {
-			w.WriteHeader(http.StatusNotFound)
-			msg := fmt.Sprintf(`{"message":"No annotations found for content with uuid %s."}`, uuid)
-			if _, err = w.Write([]byte(msg)); err != nil {
-				hctx.Log.WithError(err).Errorf("Error while writing response: %s", msg)
-			}
+			writeResponseError(hctx, w, http.StatusNotFound, uuid, `{"message":"No annotations found for content with uuid %s."}`)
 			return
 		}
 
@@ -93,6 +85,14 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 				hctx.Log.WithError(err).Errorf("Error while writing response: %s", msg)
 			}
 		}
+	}
+}
+
+func writeResponseError(hctx *HandlerCtx, w http.ResponseWriter, status int, uuid, message string) {
+	w.WriteHeader(status)
+	msg := fmt.Sprintf(message, uuid)
+	if _, err := w.Write([]byte(msg)); err != nil {
+		hctx.Log.WithError(err).Errorf("Error while writing response: %s", msg)
 	}
 }
 
