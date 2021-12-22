@@ -166,7 +166,7 @@ func mapToResponseFormat(neoAnn neoAnnotation, env string) (annotation, error) {
 	ann.APIURL = mapper.APIURL(neoAnn.ID, neoAnn.Types, env)
 	ann.ID = mapper.IDURL(neoAnn.ID)
 	types := mapper.TypeURIs(neoAnn.Types)
-	if types == nil || len(types) == 0 {
+	if len(types) == 0 {
 		return ann, fmt.Errorf("could not map type URIs for ID %s with types %s: concept not found", ann.ID, ann.Types)
 	}
 	ann.Types = types

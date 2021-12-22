@@ -12,9 +12,7 @@ type annotationsFilterChain struct {
 func newAnnotationsFilterChain(filters ...annotationsFilter) *annotationsFilterChain {
 	size := len(filters)
 	f := make([]annotationsFilter, size+1)
-	for i, t := range filters {
-		f[i] = t
-	}
+	copy(f, filters)
 	f[size] = defaultDedupFilter
 	return &annotationsFilterChain{0, f}
 }

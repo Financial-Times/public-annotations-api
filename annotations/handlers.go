@@ -27,7 +27,6 @@ func NewHandlerCtx(d driver, ch string, log *logger.UPPLogger) *HandlerCtx {
 // MethodNotAllowedHandler handles 405
 func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
 }
 
 func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
