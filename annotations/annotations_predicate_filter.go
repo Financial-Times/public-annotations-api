@@ -66,7 +66,6 @@ func (f *PredicateFilter) FilterAnnotations(annotations []Annotation) {
 }
 
 func (f *PredicateFilter) Add(a Annotation) {
-
 	pred := strings.ToLower(a.Predicate)
 	for _, p := range f.enum {
 		if p == pred {
@@ -136,8 +135,8 @@ func (f *PredicateFilter) getGroupIDAndImportanceValue(predicate string) (int, i
 	return -1, -1
 }
 
-func (f *PredicateFilter) getImportanceValueForGroupID(predicate string, groupId int) int {
-	for pos, val := range f.ImportanceRuleConfig[groupId] {
+func (f *PredicateFilter) getImportanceValueForGroupID(predicate string, groupID int) int {
+	for pos, val := range f.ImportanceRuleConfig[groupID] {
 		if val == predicate {
 			return pos
 		}
