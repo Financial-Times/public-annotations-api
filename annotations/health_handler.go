@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	runbookUrl = "https://runbooks.in.ft.com/annotationsapi"
+	runbookURL = "https://runbooks.in.ft.com/annotationsapi"
 )
 
 func HealthCheck(hctx *HandlerCtx) fthealth.Check {
@@ -14,7 +14,7 @@ func HealthCheck(hctx *HandlerCtx) fthealth.Check {
 		ID:               "neo4j-cluster-health",
 		BusinessImpact:   "Unable to respond to Public Annotations api requests",
 		Name:             "Check connectivity to Neo4j",
-		PanicGuide:       runbookUrl,
+		PanicGuide:       runbookURL,
 		Severity:         1,
 		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that Neo4j instance is up and running. You can find the neoUrl as a parameter for this service.`,
 		Checker:          Neo4jChecker(hctx.AnnotationsDriver),

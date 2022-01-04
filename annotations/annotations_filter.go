@@ -1,7 +1,7 @@
 package annotations
 
 type annotationsFilter interface {
-	filter(ann []annotation, chain *annotationsFilterChain) []annotation
+	filter(ann []Annotation, chain *annotationsFilterChain) []Annotation
 }
 
 type annotationsFilterChain struct {
@@ -12,14 +12,12 @@ type annotationsFilterChain struct {
 func newAnnotationsFilterChain(filters ...annotationsFilter) *annotationsFilterChain {
 	size := len(filters)
 	f := make([]annotationsFilter, size+1)
-	for i, t := range filters {
-		f[i] = t
-	}
+	copy(f, filters)
 	f[size] = defaultDedupFilter
 	return &annotationsFilterChain{0, f}
 }
 
-func (chain *annotationsFilterChain) doNext(ann []annotation) []annotation {
+func (chain *annotationsFilterChain) doNext(ann []Annotation) []Annotation {
 	if chain.index < len(chain.filters) {
 		f := chain.filters[chain.index]
 		chain.index++
@@ -35,8 +33,8 @@ type dedupFilter struct {
 
 var defaultDedupFilter = &dedupFilter{}
 
-func (f *dedupFilter) filter(in []annotation, chain *annotationsFilterChain) []annotation {
-	var out []annotation
+func (f *dedupFilter) filter(in []Annotation, chain *annotationsFilterChain) []Annotation {
+	var out []Annotation
 
 OUTER:
 	for _, ann := range in {

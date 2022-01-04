@@ -10,7 +10,7 @@ func TestDedupFilterPassthrough(t *testing.T) {
 	f := defaultDedupFilter
 	chain := newAnnotationsFilterChain(f)
 
-	ann := []annotation{
+	ann := []Annotation{
 		{
 			ID:        "1",
 			Predicate: "foo",
@@ -27,7 +27,7 @@ func TestDedupFilterDedups(t *testing.T) {
 	f := defaultDedupFilter
 	chain := newAnnotationsFilterChain(f)
 
-	ann := []annotation{
+	ann := []Annotation{
 		{
 			ID:        "2",
 			Predicate: "baz",

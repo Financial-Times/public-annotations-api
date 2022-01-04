@@ -17,20 +17,20 @@ const (
 	HasBrand                = "http://www.ft.com/ontology/classification/isclassifiedby"
 )
 
-type AnnotationsPredicateFilter struct {
+type PredicateFilter struct {
 	// Definition of predicate groups to whom Rule of Importance should be applied.
 	// Each group contains a list of predicate names in the order of increasing importance.
 	ImportanceRuleConfig [][]string
 	// Predicate names of annotations that should be considered for filtering
 	enum []string
 	// Stores annotations to be filtered keyed by concept ID (uuid).
-	unfilteredAnnotations map[string][]annotation
+	unfilteredAnnotations map[string][]Annotation
 	// Stores annotations not to be filtered keyed by concept ID (uuid).
-	filteredAnnotations map[string][]annotation
+	filteredAnnotations map[string][]Annotation
 }
 
-func NewAnnotationsPredicateFilter() *AnnotationsPredicateFilter {
-	return &AnnotationsPredicateFilter{
+func NewAnnotationsPredicateFilter() *PredicateFilter {
+	return &PredicateFilter{
 		enum: []string{
 			Mentions,
 			MajorMentions,
@@ -54,19 +54,18 @@ func NewAnnotationsPredicateFilter() *AnnotationsPredicateFilter {
 				IsPrimarilyClassifiedBy,
 			},
 		},
-		filteredAnnotations:   make(map[string][]annotation),
-		unfilteredAnnotations: make(map[string][]annotation),
+		filteredAnnotations:   make(map[string][]Annotation),
+		unfilteredAnnotations: make(map[string][]Annotation),
 	}
 }
 
-func (f *AnnotationsPredicateFilter) FilterAnnotations(annotations []annotation) {
+func (f *PredicateFilter) FilterAnnotations(annotations []Annotation) {
 	for _, ann := range annotations {
 		f.Add(ann)
 	}
 }
 
-func (f *AnnotationsPredicateFilter) Add(a annotation) {
-
+func (f *PredicateFilter) Add(a Annotation) {
 	pred := strings.ToLower(a.Predicate)
 	for _, p := range f.enum {
 		if p == pred {
@@ -78,8 +77,8 @@ func (f *AnnotationsPredicateFilter) Add(a annotation) {
 	f.addUnfiltered(a)
 }
 
-func (f *AnnotationsPredicateFilter) ProduceResponseList() []annotation {
-	out := []annotation{}
+func (f *PredicateFilter) ProduceResponseList() []Annotation {
+	out := []Annotation{}
 
 	for _, allFiltered := range f.filteredAnnotations {
 		for _, a := range allFiltered {
@@ -95,10 +94,10 @@ func (f *AnnotationsPredicateFilter) ProduceResponseList() []annotation {
 	return out
 }
 
-func (f *AnnotationsPredicateFilter) addFiltered(a annotation) {
+func (f *PredicateFilter) addFiltered(a Annotation) {
 	if f.filteredAnnotations[a.ID] == nil {
 		// For each importance group we shell store 1 most important annotation
-		f.filteredAnnotations[a.ID] = make([]annotation, len(f.ImportanceRuleConfig))
+		f.filteredAnnotations[a.ID] = make([]Annotation, len(f.ImportanceRuleConfig))
 	}
 	grpID, pos := f.getGroupIDAndImportanceValue(strings.ToLower(a.Predicate))
 	if grpID == -1 || pos == -1 {
@@ -117,14 +116,14 @@ func (f *AnnotationsPredicateFilter) addFiltered(a annotation) {
 	}
 }
 
-func (f *AnnotationsPredicateFilter) addUnfiltered(a annotation) {
+func (f *PredicateFilter) addUnfiltered(a Annotation) {
 	if f.unfilteredAnnotations[a.ID] == nil {
-		f.unfilteredAnnotations[a.ID] = []annotation{}
+		f.unfilteredAnnotations[a.ID] = []Annotation{}
 	}
 	f.unfilteredAnnotations[a.ID] = append(f.unfilteredAnnotations[a.ID], a)
 }
 
-func (f *AnnotationsPredicateFilter) getGroupIDAndImportanceValue(predicate string) (int, int) {
+func (f *PredicateFilter) getGroupIDAndImportanceValue(predicate string) (int, int) {
 	for group, s := range f.ImportanceRuleConfig {
 		for pos, val := range s {
 			if val == predicate {
@@ -136,8 +135,8 @@ func (f *AnnotationsPredicateFilter) getGroupIDAndImportanceValue(predicate stri
 	return -1, -1
 }
 
-func (f *AnnotationsPredicateFilter) getImportanceValueForGroupID(predicate string, groupId int) int {
-	for pos, val := range f.ImportanceRuleConfig[groupId] {
+func (f *PredicateFilter) getImportanceValueForGroupID(predicate string, groupID int) int {
+	for pos, val := range f.ImportanceRuleConfig[groupID] {
 		if val == predicate {
 			return pos
 		}
@@ -146,7 +145,7 @@ func (f *AnnotationsPredicateFilter) getImportanceValueForGroupID(predicate stri
 	return -1
 }
 
-func (f *AnnotationsPredicateFilter) filter(in []annotation, chain *annotationsFilterChain) []annotation {
+func (f *PredicateFilter) filter(in []Annotation, chain *annotationsFilterChain) []Annotation {
 	f.FilterAnnotations(in)
 	return chain.doNext(f.ProduceResponseList())
 }

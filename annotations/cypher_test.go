@@ -182,9 +182,9 @@ func getNeo4jDriver(t *testing.T) *cmneo4j.Driver {
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveMultipleAnnotations() {
-	expectedAnnotations := annotations{
-		getExpectedMentionsFakebookAnnotation(v2Lifecycle),
-		getExpectedMallStreetJournalAnnotation(v2Lifecycle),
+	expectedAnnotations := Annotations{
+		getExpectedMentionsFakebookAnnotation(),
+		getExpectedMallStreetJournalAnnotation(),
 		getExpectedMetalMickeyAnnotation(v1Lifecycle),
 		getExpectedAlphavilleSeriesAnnotation(v1Lifecycle),
 		expectedAnnotation(brandGrandChildUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
@@ -199,12 +199,12 @@ func (s *cypherDriverTestSuite) TestRetrieveMultipleAnnotations() {
 }
 
 func (s *cypherDriverTestSuite) TestRetrievePacAndV2AnnotationsAsPriority() {
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		getExpectedMetalMickeyAnnotation(pacLifecycle),
 		getExpectedHasDisplayTagFakebookAnnotation(pacLifecycle),
 		getExpectedAboutFakebookAnnotation(pacLifecycle),
 		getExpectedJohnSmithAnnotation(pacLifecycle),
-		getExpectedMallStreetJournalAnnotation(v2Lifecycle),
+		getExpectedMallStreetJournalAnnotation(),
 		expectedAnnotation(brandGrandChildUUID, brandType, predicates["IS_CLASSIFIED_BY"], pacLifecycle),
 		expectedAnnotation(brandChildUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
@@ -226,12 +226,12 @@ func (s *cypherDriverTestSuite) TestRetrievePacAndV2AnnotationsAsPriority() {
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveImplicitAbouts() {
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		expectedAnnotation(aboutTopic, topicType, predicates["ABOUT"], pacLifecycle),
 		expectedAnnotation(broaderTopicA, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
 		expectedAnnotation(broaderTopicB, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
-		getExpectedMallStreetJournalAnnotation(v2Lifecycle),
-		getExpectedMentionsFakebookAnnotation(v2Lifecycle),
+		getExpectedMallStreetJournalAnnotation(),
+		getExpectedMentionsFakebookAnnotation(),
 	}
 
 	annotationsDriver := NewCypherDriver(s.driver, "prod")
@@ -244,15 +244,15 @@ func (s *cypherDriverTestSuite) TestRetrieveImplicitAbouts() {
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveCyclicImplicitAbouts() {
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		expectedAnnotation(narrowerTopic, topicType, predicates["ABOUT"], pacLifecycle),
 		expectedAnnotation(aboutTopic, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
 		expectedAnnotation(broaderTopicA, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
 		expectedAnnotation(broaderTopicB, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
 		expectedAnnotation(cyclicTopicA, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
 		expectedAnnotation(cyclicTopicB, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
-		getExpectedMentionsFakebookAnnotation(v2Lifecycle),
-		getExpectedMallStreetJournalAnnotation(v2Lifecycle),
+		getExpectedMentionsFakebookAnnotation(),
+		getExpectedMallStreetJournalAnnotation(),
 	}
 
 	annotationsDriver := NewCypherDriver(s.driver, "prod")
@@ -267,9 +267,9 @@ func (s *cypherDriverTestSuite) TestRetrieveCyclicImplicitAbouts() {
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveMultipleAnnotationsIfPacAnnotationCannotBeMapped() {
-	expectedAnnotations := annotations{
-		getExpectedMentionsFakebookAnnotation(v2Lifecycle),
-		getExpectedMallStreetJournalAnnotation(v2Lifecycle),
+	expectedAnnotations := Annotations{
+		getExpectedMentionsFakebookAnnotation(),
+		getExpectedMallStreetJournalAnnotation(),
 		getExpectedMetalMickeyAnnotation(v1Lifecycle),
 		getExpectedAlphavilleSeriesAnnotation(v1Lifecycle),
 		expectedAnnotation(brandGrandChildUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
@@ -292,7 +292,7 @@ func (s *cypherDriverTestSuite) TestRetrieveMultipleAnnotationsIfPacAnnotationCa
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveContentWithParentBrand() {
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		expectedAnnotation(brandGrandChildUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
 		expectedAnnotation(brandChildUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
@@ -305,7 +305,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithParentBrand() {
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveContentWithGrandParentBrand() {
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		expectedAnnotation(brandGrandChildUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
 		expectedAnnotation(brandChildUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
@@ -318,7 +318,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithGrandParentBrand() {
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveContentWithCircularBrand() {
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		expectedAnnotation(brandCircularAUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
 		expectedAnnotation(brandCircularBUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 	}
@@ -330,7 +330,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithCircularBrand() {
 }
 
 func (s *cypherDriverTestSuite) TestRetrieveContentWithJustParentBrand() {
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		expectedAnnotation(brandParentUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
 	}
 
@@ -343,7 +343,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithJustParentBrand() {
 //Tests filtering Annotations where content is related to Brand A as isClassifiedBy and to Brand B as isPrimarilyClassifiedBy
 // and Brands A and B have a circular relation HasParent
 func (s *cypherDriverTestSuite) TestRetrieveContentBrandsOfDifferentTypes() {
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		expectedAnnotation(brandCircularAUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
 		expectedAnnotation(brandCircularBUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 	}
@@ -357,7 +357,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentBrandsOfDifferentTypes() {
 func (s *cypherDriverTestSuite) TestRetrieveAnnotationWithHasBrand() {
 	writeHasBrandAnnotations(s.T(), s.driver)
 
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		expectedAnnotation(brandHubPageUUID, brandType, predicates["IS_CLASSIFIED_BY"], pacLifecycle),
 		expectedAnnotation(brandWithHasBrandPredicateUUID, brandType, predicates["IS_CLASSIFIED_BY"], pacLifecycle),
 		expectedAnnotation(genreOpinionUUID, genreType, predicates["IS_CLASSIFIED_BY"], pacLifecycle),
@@ -398,7 +398,7 @@ func (s *cypherDriverTestSuite) TestTransitivePropertyOfImpliedBy() {
 		return uuid, label
 	}
 	removeUUIDs := []string{}
-	expected := []annotation{}
+	expected := []Annotation{}
 
 	contentID := writeContent("./testdata/testImplicitlyClassifiedBy/content.json")
 	removeUUIDs = append(removeUUIDs, contentID)
@@ -428,7 +428,7 @@ func (s *cypherDriverTestSuite) TestTransitivePropertyOfImpliedBy() {
 		if c.Predicate == "" {
 			continue
 		}
-		expected = append(expected, expectedAnnotationWithPrefLabel(UUID, c.Type, predicates[c.Predicate], pacLifecycle, prefLabel))
+		expected = append(expected, expectedAnnotationWithPrefLabel(UUID, c.Type, predicates[c.Predicate], prefLabel))
 	}
 
 	writeJSONToAnnotationsService(t, annotationRW, "pac", "annotations-pac", contentID, "./testdata/testImplicitlyClassifiedBy/annotations.json")
@@ -488,34 +488,34 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithImpliedBy() {
 
 	tests := map[string]struct {
 		Annotations         string
-		ExpectedAnnotations annotations
+		ExpectedAnnotations Annotations
 	}{
 		"implied by concept should return implicitly classified by": {
 			Annotations: "./testdata/impliedBy/annotation-topic-about.json",
-			ExpectedAnnotations: annotations{
-				expectedAnnotationWithPrefLabel(topicUUID, topicType, predicates["ABOUT"], pacLifecycle, topicLabel),
-				expectedAnnotationWithPrefLabel(brandUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle, brandLabel),
+			ExpectedAnnotations: Annotations{
+				expectedAnnotationWithPrefLabel(topicUUID, topicType, predicates["ABOUT"], topicLabel),
+				expectedAnnotationWithPrefLabel(brandUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], brandLabel),
 			},
 		},
 		"direct isClassifiedBy annotations should override implicit ones": {
 			Annotations: "./testdata/impliedBy/annotation-topic-and-brand-is-classified-by.json",
-			ExpectedAnnotations: annotations{
-				expectedAnnotationWithPrefLabel(topicUUID, topicType, predicates["ABOUT"], pacLifecycle, topicLabel),
-				expectedAnnotationWithPrefLabel(brandUUID, brandType, predicates["IS_CLASSIFIED_BY"], pacLifecycle, brandLabel),
+			ExpectedAnnotations: Annotations{
+				expectedAnnotationWithPrefLabel(topicUUID, topicType, predicates["ABOUT"], topicLabel),
+				expectedAnnotationWithPrefLabel(brandUUID, brandType, predicates["IS_CLASSIFIED_BY"], brandLabel),
 			},
 		},
 		"direct hasBrand annotations should override implicit ones": {
 			Annotations: "./testdata/impliedBy/annotation-topic-and-brand-has-brand.json",
-			ExpectedAnnotations: annotations{
-				expectedAnnotationWithPrefLabel(topicUUID, topicType, predicates["ABOUT"], pacLifecycle, topicLabel),
-				expectedAnnotationWithPrefLabel(brandUUID, brandType, predicates["HAS_BRAND"], pacLifecycle, brandLabel),
+			ExpectedAnnotations: Annotations{
+				expectedAnnotationWithPrefLabel(topicUUID, topicType, predicates["ABOUT"], topicLabel),
+				expectedAnnotationWithPrefLabel(brandUUID, brandType, predicates["HAS_BRAND"], brandLabel),
 			},
 		},
 		"isClassifiedBy should be with greatest priority": {
 			Annotations: "./testdata/impliedBy/annotation-topic-and-brand-multiple-ann.json",
-			ExpectedAnnotations: annotations{
-				expectedAnnotationWithPrefLabel(topicUUID, topicType, predicates["ABOUT"], pacLifecycle, topicLabel),
-				expectedAnnotationWithPrefLabel(brandUUID, brandType, predicates["IS_CLASSIFIED_BY"], pacLifecycle, brandLabel),
+			ExpectedAnnotations: Annotations{
+				expectedAnnotationWithPrefLabel(topicUUID, topicType, predicates["ABOUT"], topicLabel),
+				expectedAnnotationWithPrefLabel(brandUUID, brandType, predicates["IS_CLASSIFIED_BY"], brandLabel),
 			},
 		},
 	}
@@ -562,9 +562,9 @@ func TestRetrieveAnnotationWithCorrectValues(t *testing.T) {
 	writeV2Annotations(t, d)
 	defer cleanDB(t, d)
 
-	expectedAnnotations := annotations{
-		getExpectedMentionsFakebookAnnotation(v2Lifecycle),
-		getExpectedMallStreetJournalAnnotation(v2Lifecycle),
+	expectedAnnotations := Annotations{
+		getExpectedMentionsFakebookAnnotation(),
+		getExpectedMallStreetJournalAnnotation(),
 	}
 
 	annotationsDriver := NewCypherDriver(d, "prod")
@@ -618,9 +618,9 @@ func TestRetrieveAnnotationsWithNAICSOrganisation(t *testing.T) {
 	annotationsDriver := NewCypherDriver(driver, "prod")
 	anns := getAndCheckAnnotations(annotationsDriver, contentWithNAICSOrgUUID, t)
 
-	expectedAnnotations := annotations{
+	expectedAnnotations := Annotations{
 		getExpectedNewYorkshireTimesAnnotation(v2Lifecycle),
-		getExpectedMentionsFakebookAnnotation(v2Lifecycle),
+		getExpectedMentionsFakebookAnnotation(),
 	}
 
 	assert.Equal(len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
@@ -636,7 +636,7 @@ func TestRetrieveAnnotationsWithNAICSOrganisation(t *testing.T) {
 	}
 }
 
-func getAndCheckAnnotations(driver CypherDriver, contentUUID string, t *testing.T) annotations {
+func getAndCheckAnnotations(driver CypherDriver, contentUUID string, t *testing.T) Annotations {
 	anns, found, err := driver.read(contentUUID)
 	anns = applyDefaultFilters(anns)
 	assert.NoError(t, err, "Unexpected error for content %s", contentUUID)
@@ -876,8 +876,8 @@ func readJSONFile(t testing.TB, fixture string) map[string]interface{} {
 	return data
 }
 
-func getExpectedMentionsFakebookAnnotation(lifecycle string) annotation {
-	return annotation{
+func getExpectedMentionsFakebookAnnotation() Annotation {
+	return Annotation{
 		Predicate: "http://www.ft.com/ontology/annotation/mentions",
 		ID:        "http://api.ft.com/things/eac853f5-3859-4c08-8540-55e043719400",
 		APIURL:    "http://api.ft.com/organisations/eac853f5-3859-4c08-8540-55e043719400",
@@ -891,12 +891,12 @@ func getExpectedMentionsFakebookAnnotation(lifecycle string) annotation {
 		LeiCode:   "BQ4BKCS1HXDV9TTTTTTTT",
 		FIGI:      "BB8000C3P0-R2D2",
 		PrefLabel: "Fakebook, Inc.",
-		Lifecycle: lifecycle,
+		Lifecycle: "annotations-v2",
 	}
 }
 
-func getExpectedAboutFakebookAnnotation(lifecycle string) annotation {
-	return annotation{
+func getExpectedAboutFakebookAnnotation(lifecycle string) Annotation {
+	return Annotation{
 		Predicate: "http://www.ft.com/ontology/annotation/about",
 		ID:        "http://api.ft.com/things/eac853f5-3859-4c08-8540-55e043719400",
 		APIURL:    "http://api.ft.com/organisations/eac853f5-3859-4c08-8540-55e043719400",
@@ -914,8 +914,8 @@ func getExpectedAboutFakebookAnnotation(lifecycle string) annotation {
 	}
 }
 
-func getExpectedMallStreetJournalAnnotation(lifecycle string) annotation {
-	return annotation{
+func getExpectedMallStreetJournalAnnotation() Annotation {
+	return Annotation{
 		Predicate: "http://www.ft.com/ontology/annotation/mentions",
 		ID:        "http://api.ft.com/things/5d1510f8-2779-4b74-adab-0a5eb138fca6",
 		APIURL:    "http://api.ft.com/organisations/5d1510f8-2779-4b74-adab-0a5eb138fca6",
@@ -925,12 +925,12 @@ func getExpectedMallStreetJournalAnnotation(lifecycle string) annotation {
 			"http://www.ft.com/ontology/organisation/Organisation",
 		},
 		PrefLabel: "The Mall Street Journal",
-		Lifecycle: lifecycle,
+		Lifecycle: "annotations-v2",
 	}
 }
 
-func getExpectedNewYorkshireTimesAnnotation(lifecycle string) annotation {
-	return annotation{
+func getExpectedNewYorkshireTimesAnnotation(lifecycle string) Annotation {
+	return Annotation{
 		Predicate: "http://www.ft.com/ontology/annotation/mentions",
 		ID:        "http://api.ft.com/things/" + NYTConceptUUID,
 		APIURL:    "http://api.ft.com/organisations/" + NYTConceptUUID,
@@ -951,8 +951,8 @@ func getExpectedNewYorkshireTimesAnnotation(lifecycle string) annotation {
 	}
 }
 
-func getExpectedMetalMickeyAnnotation(lifecycle string) annotation {
-	return annotation{
+func getExpectedMetalMickeyAnnotation(lifecycle string) Annotation {
+	return Annotation{
 		Predicate: "http://www.ft.com/ontology/classification/isClassifiedBy",
 		ID:        "http://api.ft.com/things/0483bef8-5797-40b8-9b25-b12e492f63c6",
 		APIURL:    "http://api.ft.com/things/0483bef8-5797-40b8-9b25-b12e492f63c6",
@@ -967,8 +967,8 @@ func getExpectedMetalMickeyAnnotation(lifecycle string) annotation {
 	}
 }
 
-func getExpectedHasDisplayTagFakebookAnnotation(lifecycle string) annotation {
-	return annotation{
+func getExpectedHasDisplayTagFakebookAnnotation(lifecycle string) Annotation {
+	return Annotation{
 		Predicate: "http://www.ft.com/ontology/hasDisplayTag",
 		ID:        "http://api.ft.com/things/eac853f5-3859-4c08-8540-55e043719400",
 		APIURL:    "http://api.ft.com/organisations/eac853f5-3859-4c08-8540-55e043719400",
@@ -987,8 +987,8 @@ func getExpectedHasDisplayTagFakebookAnnotation(lifecycle string) annotation {
 	}
 }
 
-func getExpectedJohnSmithAnnotation(lifecycle string) annotation {
-	return annotation{
+func getExpectedJohnSmithAnnotation(lifecycle string) Annotation {
+	return Annotation{
 		Predicate: "http://www.ft.com/ontology/hasContributor",
 		ID:        "http://api.ft.com/things/75e2f7e9-cb5e-40a5-a074-86d69fe09f69",
 		APIURL:    "http://api.ft.com/people/75e2f7e9-cb5e-40a5-a074-86d69fe09f69",
@@ -1003,8 +1003,8 @@ func getExpectedJohnSmithAnnotation(lifecycle string) annotation {
 	}
 }
 
-func getExpectedAlphavilleSeriesAnnotation(lifecycle string) annotation {
-	return annotation{
+func getExpectedAlphavilleSeriesAnnotation(lifecycle string) Annotation {
+	return Annotation{
 		Predicate: "http://www.ft.com/ontology/classification/isClassifiedBy",
 		ID:        "http://api.ft.com/things/" + alphavilleSeriesUUID,
 		APIURL:    "http://api.ft.com/things/" + alphavilleSeriesUUID,
@@ -1019,25 +1019,25 @@ func getExpectedAlphavilleSeriesAnnotation(lifecycle string) annotation {
 	}
 }
 
-func expectedAnnotation(conceptUuid string, conceptType string, predicate string, lifecycle string) annotation {
-	return annotation{
+func expectedAnnotation(conceptUUID string, conceptType string, predicate string, lifecycle string) Annotation {
+	return Annotation{
 		Predicate: predicate,
-		ID:        fmt.Sprintf("http://api.ft.com/things/%s", conceptUuid),
-		APIURL:    fmt.Sprintf(conceptApiUrlTemplates[conceptType], conceptUuid),
+		ID:        fmt.Sprintf("http://api.ft.com/things/%s", conceptUUID),
+		APIURL:    fmt.Sprintf(conceptApiUrlTemplates[conceptType], conceptUUID),
 		Types:     conceptTypes[conceptType],
-		PrefLabel: conceptLabels[conceptUuid],
+		PrefLabel: conceptLabels[conceptUUID],
 		Lifecycle: lifecycle,
 	}
 }
 
-func expectedAnnotationWithPrefLabel(conceptUuid string, conceptType string, predicate string, lifecycle string, prefLabel string) annotation {
-	return annotation{
+func expectedAnnotationWithPrefLabel(conceptUUID string, conceptType string, predicate string, prefLabel string) Annotation {
+	return Annotation{
 		Predicate: predicate,
-		ID:        fmt.Sprintf("http://api.ft.com/things/%s", conceptUuid),
-		APIURL:    fmt.Sprintf(conceptApiUrlTemplates[conceptType], conceptUuid),
+		ID:        fmt.Sprintf("http://api.ft.com/things/%s", conceptUUID),
+		APIURL:    fmt.Sprintf(conceptApiUrlTemplates[conceptType], conceptUUID),
 		Types:     conceptTypes[conceptType],
 		PrefLabel: prefLabel,
-		Lifecycle: lifecycle,
+		Lifecycle: "annotations-pac",
 	}
 }
 
@@ -1063,7 +1063,7 @@ func count(annotationLifecycle string, driver *cmneo4j.Driver) (int, error) {
 	return results[0].Count, nil
 }
 
-func applyDefaultFilters(anns []annotation) []annotation {
+func applyDefaultFilters(anns []Annotation) []Annotation {
 	lifecycleFilter := newLifecycleFilter()
 	predicateFilter := NewAnnotationsPredicateFilter()
 	chain := newAnnotationsFilterChain(lifecycleFilter, predicateFilter)
