@@ -1,0 +1,22 @@
+{
+    "prefUUID": "822e3c99-afc6-3c55-b497-2255ac546f35",
+    "prefLabel": "Europe",
+    "type": "Location",
+    "aliases": [
+      "Europe Test"
+    ],
+    "sourceRepresentations": [
+      {
+        "uuid": "822e3c99-afc6-3c55-b497-2255ac546f35",
+        "prefLabel": "Europe",
+        "type": "Location",
+        "authority": "ManagedLocation",
+        "authorityValue": "822e3c99-afc6-3c55-b497-2255ac546f35",
+        "lastModifiedEpoch": 1507036591,
+        "aliases": [
+          "Europe Test"
+        ]
+      }
+    ]
+  }
+  

@@ -120,6 +120,22 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			null as naicsPrefLabel,
 			null as naicsRank,
 			rel.lifecycle as lifecycle
+		UNION ALL
+		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
+		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Location)-[:IS_PART_OF*1..]->(implicit:Concept)-[:EQUIVALENT_TO]->(canonicalImplicit)
+		WHERE NOT (canonicalImplicit)<-[:EQUIVALENT_TO]-(:Concept)<-[:ABOUT]-(content) // filter out the original abouts
+		RETURN 
+			DISTINCT canonicalImplicit.prefUUID as id,
+			canonicalImplicit.isDeprecated as isDeprecated,
+			"IMPLICITLY_ABOUT" as predicate,
+			labels(canonicalImplicit) as types,
+			canonicalImplicit.prefLabel as prefLabel,
+			null as leiCode,
+			null as figi,
+			null as naicsIdentifier,
+			null as naicsPrefLabel,
+			null as naicsRank,
+			rel.lifecycle as lifecycle
 		`,
 		Params: map[string]interface{}{"contentUUID": contentUUID},
 		Result: &results,

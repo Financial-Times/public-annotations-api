@@ -8,5 +8,15 @@
       ],
       "predicate": "about"
     }
+  },
+  {
+    "thing": {
+      "id": "http://api.ft.com/things/82cba3ce-329b-3010-b29d-4282a215889f",
+      "prefLabel": "Bulgaria",
+      "types": [
+        "http://www.ft.com/ontology/Location"
+      ],
+      "predicate": "about"
+    }
   }
 ]

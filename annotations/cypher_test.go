@@ -45,6 +45,11 @@ const (
 	brandHubPageUUID               = "87645070-7d8a-492e-9695-bf61ac2b4d18"
 	genreOpinionUUID               = "6da31a37-691f-4908-896f-2829ebe2309e"
 	orgUUID                        = "bb3c006d-e999-3919-8fb2-4992ef7a2100"
+	locationA                      = "82cba3ce-329b-3010-b29d-4282a215889f"
+	locationB                      = "8d54e308-807c-4e9e-9981-8faab10b6f1c"
+	locationC                      = "5895ee1e-d5de-39c1-93ab-03fcb7d36caf"
+	locationD                      = "307c91ed-31f5-33b7-895a-1ffbeec514f4"
+	locationE                      = "822e3c99-afc6-3c55-b497-2255ac546f35"
 
 	contentWithBrandsDiffTypesUUID = "3fc9fe3e-af8c-6a6a-961a-e5065392bb31"
 	financialInstrumentUUID        = "77f613ad-1470-422c-bf7c-1dd4c3fd1693"
@@ -72,6 +77,7 @@ const (
 
 	brandType        = "http://www.ft.com/ontology/product/Brand"
 	topicType        = "http://www.ft.com/ontology/Topic"
+	locationType     = "http://www.ft.com/ontology/Location"
 	genreType        = "http://www.ft.com/ontology/Genre"
 	organisationType = "http://www.ft.com/ontology/organisation/Organisation"
 )
@@ -92,6 +98,11 @@ var (
 		brandWithHasBrandPredicateUUID: "Lex",
 		brandHubPageUUID:               "Moral Money",
 		genreOpinionUUID:               "Opinion",
+		locationA:                      "Bulgaria",
+		locationB:                      "Balkans",
+		locationC:                      "Eastern Europe",
+		locationD:                      "Balkan Peninsula",
+		locationE:                      "Europe",
 	}
 
 	conceptTypes = map[string][]string{
@@ -117,12 +128,18 @@ var (
 			"http://www.ft.com/ontology/concept/Concept",
 			organisationType,
 		},
+		locationType: {
+			"http://www.ft.com/ontology/core/Thing",
+			"http://www.ft.com/ontology/concept/Concept",
+			locationType,
+		},
 	}
 
 	conceptApiUrlTemplates = map[string]string{
 		brandType:        "http://api.ft.com/brands/%s",
 		topicType:        "http://api.ft.com/things/%s",
 		genreType:        "http://api.ft.com/things/%s",
+		locationType:     "http://api.ft.com/things/%s",
 		organisationType: "http://api.ft.com/organisations/%s",
 	}
 )
@@ -228,8 +245,13 @@ func (s *cypherDriverTestSuite) TestRetrievePacAndV2AnnotationsAsPriority() {
 func (s *cypherDriverTestSuite) TestRetrieveImplicitAbouts() {
 	expectedAnnotations := Annotations{
 		expectedAnnotation(aboutTopic, topicType, predicates["ABOUT"], pacLifecycle),
+		expectedAnnotation(locationA, locationType, predicates["ABOUT"], pacLifecycle),
 		expectedAnnotation(broaderTopicA, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
 		expectedAnnotation(broaderTopicB, topicType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
+		expectedAnnotation(locationB, locationType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
+		expectedAnnotation(locationC, locationType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
+		expectedAnnotation(locationD, locationType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
+		expectedAnnotation(locationE, locationType, predicates["IMPLICITLY_ABOUT"], pacLifecycle),
 		getExpectedMallStreetJournalAnnotation(),
 		getExpectedMentionsFakebookAnnotation(),
 	}
@@ -657,6 +679,7 @@ func writeAllDataToDB(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
 	writeV1Annotations(t, d)
 	writeV2Annotations(t, d)
 	writeTopics(t, d, log)
+	writeLocations(t, d, log)
 }
 
 func writeBrands(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
@@ -704,6 +727,16 @@ func writeOrganisations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) 
 	writeJSONToService(organisationRW, "./testdata/Organisation-Fakebook-eac853f5-3859-4c08-8540-55e043719400.json", t)
 	writeJSONToService(organisationRW, "./testdata/NAICSIndustryClassification-38ee195d-ebdd-48a9-af4b-c8a322e7b04d.json", t)
 	writeJSONToService(organisationRW, "./testdata/Organisation-NYT-0d9fbdfc-7d95-332b-b77b-1e69274b1b83.json", t)
+}
+
+func writeLocations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
+	locationRW := concepts.NewConceptService(d, log)
+	assert.NoError(t, locationRW.Initialise())
+	writeJSONToService(locationRW, "./testdata/Location-82cba3ce-329b-3010-b29d-4282a215889f.json", t)
+	writeJSONToService(locationRW, "./testdata/Location-8d54e308-807c-4e9e-9981-8faab10b6f1c.json", t)
+	writeJSONToService(locationRW, "./testdata/Location-5895ee1e-d5de-39c1-93ab-03fcb7d36caf.json", t)
+	writeJSONToService(locationRW, "./testdata/Location-307c91ed-31f5-33b7-895a-1ffbeec514f4.json", t)
+	writeJSONToService(locationRW, "./testdata/Location-822e3c99-afc6-3c55-b497-2255ac546f35.json", t)
 }
 
 func writePeople(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
@@ -773,7 +806,7 @@ func writeHasBrandAnnotations(t testing.TB, driver *cmneo4j.Driver) {
 func writeAboutAnnotations(t testing.TB, driver *cmneo4j.Driver) {
 	service := annrw.NewCypherAnnotationsService(driver)
 	assert.NoError(t, service.Initialise())
-	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentUUID, "./testdata/Annotations-ca982370-66cd-43bd-b2e3-7bfcb73efb1e-implicit-abouts.json")
+	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentUUID, "./testdata/Annotations-ca982370-66cd-43bd-b2e3-7bfcb73efb1e-and-82cba3ce-329b-3010-b29d-4282a215889f-implicit-abouts.json")
 }
 
 func writeCyclicAboutAnnotations(t testing.TB, driver *cmneo4j.Driver) {

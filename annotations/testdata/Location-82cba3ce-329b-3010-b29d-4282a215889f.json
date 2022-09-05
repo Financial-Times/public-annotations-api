@@ -1,0 +1,27 @@
+{
+    "prefUUID": "82cba3ce-329b-3010-b29d-4282a215889f",
+    "prefLabel": "Bulgaria",
+    "type": "Location",
+    "aliases": [
+      "Bulgaria Test"
+    ],
+    "sourceRepresentations": [
+      {
+        "uuid": "82cba3ce-329b-3010-b29d-4282a215889f",
+        "prefLabel": "Bulgaria",
+        "type": "Location",
+        "authority": "ManagedLocation",
+        "authorityValue": "82cba3ce-329b-3010-b29d-4282a215889f",
+        "lastModifiedEpoch": 1507036591,
+        "aliases": [
+          "Bulgaria Test"
+        ],
+        "partOfUUIDs": [
+          "307c91ed-31f5-33b7-895a-1ffbeec514f4",
+          "8d54e308-807c-4e9e-9981-8faab10b6f1c",
+          "5895ee1e-d5de-39c1-93ab-03fcb7d36caf"
+        ]
+      }
+    ]
+  }
+  

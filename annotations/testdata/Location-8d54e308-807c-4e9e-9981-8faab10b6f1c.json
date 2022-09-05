@@ -1,0 +1,25 @@
+{
+    "prefUUID": "8d54e308-807c-4e9e-9981-8faab10b6f1c",
+    "prefLabel": "Balkans",
+    "type": "Location",
+    "aliases": [
+      "Balkans Test"
+    ],
+    "sourceRepresentations": [
+      {
+        "uuid": "8d54e308-807c-4e9e-9981-8faab10b6f1c",
+        "prefLabel": "Balkans",
+        "type": "Location",
+        "authority": "ManagedLocation",
+        "authorityValue": "82cba3ce-329b-3010-b29d-4282a215887a",
+        "lastModifiedEpoch": 1507036591,
+        "aliases": [
+          "Balkans Test"
+        ],
+        "partOfUUIDs": [
+          "822e3c99-afc6-3c55-b497-2255ac546f35"
+        ]
+      }
+    ]
+  }
+  
