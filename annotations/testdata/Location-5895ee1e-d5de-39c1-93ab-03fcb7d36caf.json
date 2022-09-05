@@ -5,6 +5,7 @@
     "aliases": [
       "Eastern Europe Test"
     ],
+    "geonamesFeatureCode": "http://www.geonames.org/ontology#L.RGN",
     "sourceRepresentations": [
       {
         "uuid": "5895ee1e-d5de-39c1-93ab-03fcb7d36caf",

@@ -5,6 +5,7 @@
     "aliases": [
       "Balkan Peninsula Test"
     ],
+    "geonamesFeatureCode": "http://www.geonames.org/ontology#T.PEN",
     "sourceRepresentations": [
       {
         "uuid": "307c91ed-31f5-33b7-895a-1ffbeec514f4",

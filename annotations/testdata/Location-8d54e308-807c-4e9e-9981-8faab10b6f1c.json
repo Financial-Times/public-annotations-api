@@ -5,6 +5,7 @@
     "aliases": [
       "Balkans Test"
     ],
+    "geonamesFeatureCode": "http://www.geonames.org/ontology#L.RGN",
     "sourceRepresentations": [
       {
         "uuid": "8d54e308-807c-4e9e-9981-8faab10b6f1c",

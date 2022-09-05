@@ -28,18 +28,19 @@ func (cd CypherDriver) checkConnectivity() error {
 }
 
 type neoAnnotation struct {
-	Predicate       string
-	ID              string
-	APIURL          string
-	Types           []string
-	LeiCode         string
-	FIGI            string
-	NAICSIdentifier string
-	NAICSPrefLabel  string
-	NAICSRank       int
-	PrefLabel       string
-	Lifecycle       string
-	IsDeprecated    bool
+	Predicate           string
+	ID                  string
+	APIURL              string
+	Types               []string
+	LeiCode             string
+	FIGI                string
+	NAICSIdentifier     string
+	NAICSPrefLabel      string
+	NAICSRank           int
+	PrefLabel           string
+	GeonamesFeatureCode string
+	Lifecycle           string
+	IsDeprecated        bool
 
 	// Canonical information
 	PrefUUID           string
@@ -68,6 +69,7 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			type(rel) as predicate,
 			labels(canonicalConcept) as types,
 			canonicalConcept.prefLabel as prefLabel,
+			canonicalConcept.geonamesFeatureCode as geonamesFeatureCode,
 			canonicalConcept.leiCode as leiCode,
 			figi.figiCode as figi,
 			naics.industryIdentifier as naicsIdentifier,
@@ -83,6 +85,7 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			"IMPLICITLY_CLASSIFIED_BY" as predicate,
 			labels(canonicalParent) as types,
 			canonicalParent.prefLabel as prefLabel,
+			null as geonamesFeatureCode,
 			null as leiCode,
 			null as figi,
 			null as naicsIdentifier,
@@ -98,6 +101,7 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			"IMPLICITLY_CLASSIFIED_BY" as predicate,
 			labels(canonicalBrand) as types,
 			canonicalBrand.prefLabel as prefLabel,
+			null as geonamesFeatureCode,
 			null as leiCode,
 			null as figi,
 			null as naicsIdentifier,
@@ -114,6 +118,7 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			"IMPLICITLY_ABOUT" as predicate,
 			labels(canonicalImplicit) as types,
 			canonicalImplicit.prefLabel as prefLabel,
+			canonicalImplicit.geonamesFeatureCode as geonamesFeatureCode,
 			null as leiCode,
 			null as figi,
 			null as naicsIdentifier,
@@ -130,6 +135,7 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			"IMPLICITLY_ABOUT" as predicate,
 			labels(canonicalImplicit) as types,
 			canonicalImplicit.prefLabel as prefLabel,
+			canonicalImplicit.geonamesFeatureCode as geonamesFeatureCode,
 			null as leiCode,
 			null as figi,
 			null as naicsIdentifier,
@@ -194,6 +200,7 @@ func mapToResponseFormat(neoAnn neoAnnotation, env string) (Annotation, error) {
 	ann.Predicate = predicate
 	ann.Lifecycle = neoAnn.Lifecycle
 	ann.IsDeprecated = neoAnn.IsDeprecated
+	ann.GeonamesFeatureCode = neoAnn.GeonamesFeatureCode
 
 	return ann, nil
 }

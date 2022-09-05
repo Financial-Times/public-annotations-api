@@ -5,6 +5,7 @@
     "aliases": [
       "Bulgaria Test"
     ],
+    "geonamesFeatureCode":"http://www.geonames.org/ontology#A.PCLI",
     "sourceRepresentations": [
       {
         "uuid": "82cba3ce-329b-3010-b29d-4282a215889f",

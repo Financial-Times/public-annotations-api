@@ -5,6 +5,7 @@
     "aliases": [
       "Europe Test"
     ],
+    "geonamesFeatureCode":"http://www.geonames.org/ontology#L.CONT",
     "sourceRepresentations": [
       {
         "uuid": "822e3c99-afc6-3c55-b497-2255ac546f35",

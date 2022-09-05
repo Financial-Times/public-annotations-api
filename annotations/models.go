@@ -9,14 +9,15 @@ type IndustryClassification struct {
 }
 
 type Annotation struct {
-	Predicate string                   `json:"predicate"`
-	ID        string                   `json:"id"`
-	APIURL    string                   `json:"apiUrl"`
-	Types     []string                 `json:"types"`
-	LeiCode   string                   `json:"leiCode,omitempty"`
-	FIGI      string                   `json:"FIGI,omitempty"`
-	NAICS     []IndustryClassification `json:"NAICS,omitempty"`
-	PrefLabel string                   `json:"prefLabel,omitempty"`
+	Predicate           string                   `json:"predicate"`
+	ID                  string                   `json:"id"`
+	APIURL              string                   `json:"apiUrl"`
+	Types               []string                 `json:"types"`
+	LeiCode             string                   `json:"leiCode,omitempty"`
+	FIGI                string                   `json:"FIGI,omitempty"`
+	NAICS               []IndustryClassification `json:"NAICS,omitempty"`
+	PrefLabel           string                   `json:"prefLabel,omitempty"`
+	GeonamesFeatureCode string                   `json:"geonamesFeatureCode,omitempty"`
 	//used for filtering, e.g. pac not exposed
 	Lifecycle    string `json:"-"`
 	IsDeprecated bool   `json:"isDeprecated,omitempty"`

@@ -105,6 +105,14 @@ var (
 		locationE:                      "Europe",
 	}
 
+	geonamesFeatureCodes = map[string]string{
+		locationA: "http://www.geonames.org/ontology#A.PCLI",
+		locationB: "http://www.geonames.org/ontology#L.RGN",
+		locationC: "http://www.geonames.org/ontology#L.RGN",
+		locationD: "http://www.geonames.org/ontology#T.PEN",
+		locationE: "http://www.geonames.org/ontology#L.CONT",
+	}
+
 	conceptTypes = map[string][]string{
 		brandType: {
 			"http://www.ft.com/ontology/core/Thing",
@@ -1054,12 +1062,13 @@ func getExpectedAlphavilleSeriesAnnotation(lifecycle string) Annotation {
 
 func expectedAnnotation(conceptUUID string, conceptType string, predicate string, lifecycle string) Annotation {
 	return Annotation{
-		Predicate: predicate,
-		ID:        fmt.Sprintf("http://api.ft.com/things/%s", conceptUUID),
-		APIURL:    fmt.Sprintf(conceptApiUrlTemplates[conceptType], conceptUUID),
-		Types:     conceptTypes[conceptType],
-		PrefLabel: conceptLabels[conceptUUID],
-		Lifecycle: lifecycle,
+		Predicate:           predicate,
+		ID:                  fmt.Sprintf("http://api.ft.com/things/%s", conceptUUID),
+		APIURL:              fmt.Sprintf(conceptApiUrlTemplates[conceptType], conceptUUID),
+		Types:               conceptTypes[conceptType],
+		PrefLabel:           conceptLabels[conceptUUID],
+		GeonamesFeatureCode: geonamesFeatureCodes[conceptUUID],
+		Lifecycle:           lifecycle,
 	}
 }
 
