@@ -8,15 +8,23 @@
     "geonamesFeatureCode":"http://www.geonames.org/ontology#L.CONT",
     "sourceRepresentations": [
       {
-        "uuid": "822e3c99-afc6-3c55-b497-2255ac546f35",
+        "uuid": "6374b579-f67d-4970-a7cd-1ab5e41a551a",
         "prefLabel": "Europe",
         "type": "Location",
         "authority": "ManagedLocation",
-        "authorityValue": "822e3c99-afc6-3c55-b497-2255ac546f35",
+        "authorityValue": "6374b579-f67d-4970-a7cd-1ab5e41a551a",
         "lastModifiedEpoch": 1507036591,
         "aliases": [
           "Europe Test"
         ]
+      },
+      {
+        "authority": "Smartlogic",
+        "authorityValue": "822e3c99-afc6-3c55-b497-2255ac546f35",
+        "lastModifiedEpoch": 1662029324,
+        "prefLabel": "Europe",
+        "type": "Location",
+        "uuid": "822e3c99-afc6-3c55-b497-2255ac546f35"
       }
     ]
   }
