@@ -1,0 +1,26 @@
+{
+    "prefUUID": "307c91ed-31f5-33b7-895a-1ffbeec514f4",
+    "prefLabel": "Balkan Peninsula",
+    "type": "Location",
+    "aliases": [
+      "Balkan Peninsula Test"
+    ],
+    "geonamesFeatureCode": "http://www.geonames.org/ontology#T.PEN",
+    "sourceRepresentations": [
+      {
+        "uuid": "307c91ed-31f5-33b7-895a-1ffbeec514f4",
+        "prefLabel": "Balkan Peninsula",
+        "type": "Location",
+        "authority": "ManagedLocation",
+        "authorityValue": "307c91ed-31f5-33b7-895a-1ffbeec514f4",
+        "lastModifiedEpoch": 1507036591,
+        "aliases": [
+          "Balkan Peninsula Test"
+        ],
+        "partOfUUIDs": [
+          "822e3c99-afc6-3c55-b497-2255ac546f35"
+        ]
+      }
+    ]
+  }
+  

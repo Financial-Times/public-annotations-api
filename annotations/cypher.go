@@ -28,18 +28,19 @@ func (cd CypherDriver) checkConnectivity() error {
 }
 
 type neoAnnotation struct {
-	Predicate       string
-	ID              string
-	APIURL          string
-	Types           []string
-	LeiCode         string
-	FIGI            string
-	NAICSIdentifier string
-	NAICSPrefLabel  string
-	NAICSRank       int
-	PrefLabel       string
-	Lifecycle       string
-	IsDeprecated    bool
+	Predicate           string
+	ID                  string
+	APIURL              string
+	Types               []string
+	LeiCode             string
+	FIGI                string
+	NAICSIdentifier     string
+	NAICSPrefLabel      string
+	NAICSRank           int
+	PrefLabel           string
+	GeonamesFeatureCode string
+	Lifecycle           string
+	IsDeprecated        bool
 
 	// Canonical information
 	PrefUUID           string
@@ -68,13 +69,14 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			type(rel) as predicate,
 			labels(canonicalConcept) as types,
 			canonicalConcept.prefLabel as prefLabel,
+			canonicalConcept.geonamesFeatureCode as geonamesFeatureCode,
 			canonicalConcept.leiCode as leiCode,
 			figi.figiCode as figi,
 			naics.industryIdentifier as naicsIdentifier,
 			naics.prefLabel as naicsPrefLabel,
 			naicsRel.rank as naicsRank,
 			rel.lifecycle as lifecycle
-		UNION ALL
+		UNION
 		MATCH (content:Content{uuid:$contentUUID})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
 		OPTIONAL MATCH (canonicalBrand)<-[:EQUIVALENT_TO]-(leafBrand:Brand)-[r:HAS_PARENT*0..]->(parentBrand:Brand)-[:EQUIVALENT_TO]->(canonicalParent:Brand)
 		RETURN 
@@ -83,13 +85,14 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			"IMPLICITLY_CLASSIFIED_BY" as predicate,
 			labels(canonicalParent) as types,
 			canonicalParent.prefLabel as prefLabel,
+			null as geonamesFeatureCode,
 			null as leiCode,
 			null as figi,
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
 			rel.lifecycle as lifecycle
-		UNION ALL
+		UNION
 		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Topic)<-[:IMPLIED_BY*1..]-(impliedByBrand:Brand)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
 		RETURN 
@@ -98,13 +101,14 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			"IMPLICITLY_CLASSIFIED_BY" as predicate,
 			labels(canonicalBrand) as types,
 			canonicalBrand.prefLabel as prefLabel,
+			null as geonamesFeatureCode,
 			null as leiCode,
 			null as figi,
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
 			rel.lifecycle as lifecycle
-		UNION ALL
+		UNION
 		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Concept)-[:HAS_BROADER*1..]->(implicit:Concept)-[:EQUIVALENT_TO]->(canonicalImplicit)
 		WHERE NOT (canonicalImplicit)<-[:EQUIVALENT_TO]-(:Concept)<-[:ABOUT]-(content) // filter out the original abouts
@@ -114,6 +118,24 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 			"IMPLICITLY_ABOUT" as predicate,
 			labels(canonicalImplicit) as types,
 			canonicalImplicit.prefLabel as prefLabel,
+			canonicalImplicit.geonamesFeatureCode as geonamesFeatureCode,
+			null as leiCode,
+			null as figi,
+			null as naicsIdentifier,
+			null as naicsPrefLabel,
+			null as naicsRank,
+			rel.lifecycle as lifecycle
+		UNION
+		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
+		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Location)-[:IS_PART_OF*1..]->(implicit:Concept)-[:EQUIVALENT_TO]->(canonicalImplicit)
+		WHERE NOT (canonicalImplicit)<-[:EQUIVALENT_TO]-(:Concept)<-[:ABOUT]-(content) // filter out the original abouts
+		RETURN 
+			DISTINCT canonicalImplicit.prefUUID as id,
+			canonicalImplicit.isDeprecated as isDeprecated,
+			"IMPLICITLY_ABOUT" as predicate,
+			labels(canonicalImplicit) as types,
+			canonicalImplicit.prefLabel as prefLabel,
+			canonicalImplicit.geonamesFeatureCode as geonamesFeatureCode,
 			null as leiCode,
 			null as figi,
 			null as naicsIdentifier,
@@ -178,6 +200,7 @@ func mapToResponseFormat(neoAnn neoAnnotation, env string) (Annotation, error) {
 	ann.Predicate = predicate
 	ann.Lifecycle = neoAnn.Lifecycle
 	ann.IsDeprecated = neoAnn.IsDeprecated
+	ann.GeonamesFeatureCode = neoAnn.GeonamesFeatureCode
 
 	return ann, nil
 }

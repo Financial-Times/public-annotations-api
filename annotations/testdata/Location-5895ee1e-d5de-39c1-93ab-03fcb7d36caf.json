@@ -1,0 +1,26 @@
+{
+    "prefUUID": "5895ee1e-d5de-39c1-93ab-03fcb7d36caf",
+    "prefLabel": "Eastern Europe",
+    "type": "Location",
+    "aliases": [
+      "Eastern Europe Test"
+    ],
+    "geonamesFeatureCode": "http://www.geonames.org/ontology#L.RGN",
+    "sourceRepresentations": [
+      {
+        "uuid": "5895ee1e-d5de-39c1-93ab-03fcb7d36caf",
+        "prefLabel": "Eastern Europe",
+        "type": "Location",
+        "authority": "ManagedLocation",
+        "authorityValue": "5895ee1e-d5de-39c1-93ab-03fcb7d36caf",
+        "lastModifiedEpoch": 1507036591,
+        "aliases": [
+          "Eastern Europe Test"
+        ],
+        "partOfUUIDs": [
+          "822e3c99-afc6-3c55-b497-2255ac546f35"
+        ]
+      }
+    ]
+  }
+  
