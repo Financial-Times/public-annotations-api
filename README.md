@@ -1,6 +1,9 @@
 # Public API for Annotations (public-annotations-api)
 
-[![Circle CI](https://circleci.com/gh/Financial-Times/public-annotations-api.svg?style=shield)](https://circleci.com/gh/Financial-Times/public-annotations-api)[![Go Report Card](https://goreportcard.com/badge/github.com/Financial-Times/public-annotations-api)](https://goreportcard.com/report/github.com/Financial-Times/public-annotations-api) [![Coverage Status](https://coveralls.io/repos/github/Financial-Times/public-annotations-api/badge.svg)](https://coveralls.io/github/Financial-Times/public-annotations-api)
+[![Circle CI](https://circleci.com/gh/Financial-Times/public-annotations-api.svg?style=shield)](https://circleci.com/gh/Financial-Times/public-annotations-api)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Financial-Times/public-annotations-api)](https://goreportcard.com/report/github.com/Financial-Times/public-annotations-api) 
+[![Coverage Status](https://coveralls.io/repos/github/Financial-Times/public-annotations-api/badge.svg)](https://coveralls.io/github/Financial-Times/public-annotations-api)
+
 __Provides a public API for Annotations stored in a Neo4J graph database__
 
 ## Installation & running locally
@@ -44,7 +47,7 @@ Command line options:
 Continuously built by CircleCI. The docker image of the service is built by Dockerhub based on the git release tag.
 To prepare a new git release, go to the repo page on GitHub and create a new release.
 
-* Cluster deployment:  [public-annotations-api](https://upp-k8s-jenkins.in.ft.com/job/k8s-deployment/job/apps-deployment/job/public-annotations-api-auto-deploy/)
+* Cluster deployment:  [public-annotations-api](https://upp-jenkins-k8s-prod.upp.ft.com/job/k8s-deployment/job/apps-deployment/job/public-annotations-api-auto-deploy/)
 * CI provided by CircleCI: [public-annotations-api](https://circleci.com/gh/Financial-Times/public-annotations-api)
 * Code coverage provided by Coverall: [public-annotations-api](https://coveralls.io/github/Financial-Times/public-annotations-api)
 
