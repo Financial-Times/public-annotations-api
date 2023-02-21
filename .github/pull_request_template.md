@@ -14,7 +14,7 @@ Mention here sections of code which you would like reviewers to pay extra attent
 
 _Would appreciate a second pair of eyes on the test_  
 _I am not quite sure how this bit works_  
-_Is there a better library for doing x_  
+_Is there a better library for doing x_
 
 ## Scope and particulars of this PR (Please tick all that apply)
 
@@ -24,6 +24,17 @@ _Is there a better library for doing x_
 - [ ] Documentation
 - [ ] Breaking change
 - [ ] Minor change (e.g. fixing a typo, adding config)
+
+## DoD - Ensure all relevant tasks are completed before marking this PR as "Ready for review"
+
+- [ ] Test coverage is not significantly decreased
+- [ ] All PR checks have passed
+- [ ] Changes are deployed on dev before asking for review
+- [ ] Documentation remains up-to-date
+    - [ ] OpenAPI definition file is updated
+    - [ ] README file is updated
+    - [ ] Documentation is updated in upp-docs and upp-public-docs
+    - [ ] Architecture diagrams are updated
 
 ___
 This Pull Request follows the rules described in our [Pull Requests Guide](https://github.com/Financial-Times/upp-docs/tree/master/guides/pr-guide)
