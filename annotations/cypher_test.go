@@ -18,6 +18,7 @@ import (
 	"github.com/Financial-Times/concepts-rw-neo4j/concepts"
 	"github.com/Financial-Times/content-rw-neo4j/v3/content"
 	"github.com/Financial-Times/go-logger/v2"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -26,7 +27,7 @@ import (
 )
 
 const (
-	//Generate uuids so there's no clash with real data
+	// Generate uuids so there's no clash with real data
 	contentUUID                        = "3fc9fe3e-af8c-4f7f-961a-e5065392bb31"
 	contentWithNoAnnotationsUUID       = "3fc9fe3e-af8c-1a1a-961a-e5065392bb31"
 	contentWithParentAndChildBrandUUID = "3fc9fe3e-af8c-2a2a-961a-e5065392bb31"
@@ -236,7 +237,7 @@ func (s *cypherDriverTestSuite) TestRetrievePacAndV2AnnotationsAsPriority() {
 	}
 	annotationsDriver := NewCypherDriver(s.driver, "prod")
 	writePacAnnotations(s.T(), s.driver)
-	//assert data for filtering
+	// assert data for filtering
 	numOfV1Annotations, _ := count(v1Lifecycle, s.driver)
 	numOfV2Annotations, _ := count(v2Lifecycle, s.driver)
 	numOfPACAnnotations, _ := count(pacLifecycle, s.driver)
@@ -309,7 +310,7 @@ func (s *cypherDriverTestSuite) TestRetrieveMultipleAnnotationsIfPacAnnotationCa
 
 	annotationsDriver := NewCypherDriver(s.driver, "prod")
 	writeBrokenPacAnnotations(s.T(), s.driver)
-	//assert data for filtering
+	// assert data for filtering
 	numOfV1Annotations, _ := count(v1Lifecycle, s.driver)
 	numOfv2Annotations, _ := count(v2Lifecycle, s.driver)
 	numOfPacAnnotations, _ := count(pacLifecycle, s.driver)
@@ -370,7 +371,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithJustParentBrand() {
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
 }
 
-//Tests filtering Annotations where content is related to Brand A as isClassifiedBy and to Brand B as isPrimarilyClassifiedBy
+// Tests filtering Annotations where content is related to Brand A as isClassifiedBy and to Brand B as isPrimarilyClassifiedBy
 // and Brands A and B have a circular relation HasParent
 func (s *cypherDriverTestSuite) TestRetrieveContentBrandsOfDifferentTypes() {
 	expectedAnnotations := Annotations{
@@ -472,7 +473,7 @@ func (s *cypherDriverTestSuite) TestTransitivePropertyOfImpliedBy() {
 
 func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithImpliedBy() {
 
-	//setup
+	// setup
 	t := s.T()
 	driver := s.driver
 
@@ -563,6 +564,81 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithImpliedBy() {
 	deleteUUIDs(t, s.driver, cleanUUIDs)
 }
 
+func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithValidBookmark() {
+	expectedAnnotations := Annotations{
+		getExpectedMentionsFakebookAnnotation(),
+		getExpectedMallStreetJournalAnnotation(),
+		getExpectedMetalMickeyAnnotation(v1Lifecycle),
+		getExpectedAlphavilleSeriesAnnotation(v1Lifecycle),
+		expectedAnnotation(brandGrandChildUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
+		expectedAnnotation(brandChildUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
+		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
+	}
+
+	// Write something to obtain valid bookmark, delete what's written after the test.
+	defer deleteUUIDs(s.T(), s.driver, []string{"test-uuid"})
+
+	bookmark, err := s.driver.WriteMultiple([]*cmneo4j.Query{
+		{
+			Cypher: "CREATE (n:Thing {uuid: 'test-uuid'})",
+		},
+	}, []string{})
+	assert.NoError(s.T(), err, "Unexpected error writing a thing")
+
+	annotationsDriver := NewCypherDriver(s.driver, "prod")
+
+	anns, found, err := annotationsDriver.read(contentUUID, bookmark)
+	anns = applyDefaultFilters(anns)
+	assert.NoError(s.T(), err, "Unexpected error for content %s", contentUUID)
+	assert.True(s.T(), found, "Found no annotations for content %s", contentUUID)
+
+	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
+	assertListContainsAll(s.T(), anns, expectedAnnotations)
+}
+
+func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithNonExistingBookmark() {
+	expectedAnnotations := Annotations{
+		getExpectedMentionsFakebookAnnotation(),
+		getExpectedMallStreetJournalAnnotation(),
+		getExpectedMetalMickeyAnnotation(v1Lifecycle),
+		getExpectedAlphavilleSeriesAnnotation(v1Lifecycle),
+		expectedAnnotation(brandGrandChildUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
+		expectedAnnotation(brandChildUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
+		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
+	}
+
+	// If the bookmark is non-existing for the Neo db but in valid format, the read transaction will pass
+	// successfully without complying to the bookmark.
+	nonExistingBookmark := "FB:kcwQnrEEnFpfSJ2PtiykK/JNh8oBozhIkA=="
+
+	annotationsDriver := NewCypherDriver(s.driver, "prod")
+
+	anns, found, err := annotationsDriver.read(contentUUID, nonExistingBookmark)
+	anns = applyDefaultFilters(anns)
+	assert.NoError(s.T(), err, "Unexpected error for content %s", contentUUID)
+	assert.True(s.T(), found, "Found no annotations for content %s", contentUUID)
+
+	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
+	assertListContainsAll(s.T(), anns, expectedAnnotations)
+}
+
+func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithInvalidBookmark() {
+	// If the bookmark is in invalid format, the read should be unsuccessful.
+	// It is the Neo4j db that is checking the bookmark format, not the driver. The db returns verbose error on what
+	// exactly is not okay with the format of the bookmark.
+	invalidBookmark := "sm:invalid"
+
+	annotationsDriver := NewCypherDriver(s.driver, "prod")
+
+	anns, found, err := annotationsDriver.read(contentUUID, invalidBookmark)
+	assert.Error(s.T(), err)
+	var neo4jError *neo4j.Neo4jError
+	assert.True(s.T(), errors.As(err, &neo4jError))
+
+	assert.False(s.T(), found, "Found no annotations for content %s", contentUUID)
+	assert.Equal(s.T(), len(anns), 0, "Didn't get 0 annotations")
+}
+
 func TestRetrieveNoAnnotationsWhenThereAreNonePresentExceptBrands(t *testing.T) {
 	assert := assert.New(t)
 	driver := getNeo4jDriver(t)
@@ -574,7 +650,7 @@ func TestRetrieveNoAnnotationsWhenThereAreNonePresentExceptBrands(t *testing.T) 
 	defer cleanDB(t, driver)
 
 	annotationsDriver := NewCypherDriver(driver, "prod")
-	anns, found, err := annotationsDriver.read(contentWithNoAnnotationsUUID)
+	anns, found, err := annotationsDriver.read(contentWithNoAnnotationsUUID, "")
 	anns = applyDefaultFilters(anns)
 	assert.NoError(err, "Unexpected error for content %s", contentWithNoAnnotationsUUID)
 	assert.False(found, "Found annotations for content %s", contentWithNoAnnotationsUUID)
@@ -625,7 +701,7 @@ func TestRetrieveNoAnnotationsWhenThereAreNoConceptsPresent(t *testing.T) {
 	defer cleanDB(t, driver)
 
 	annotationsDriver := NewCypherDriver(driver, "prod")
-	anns, found, err := annotationsDriver.read(contentUUID)
+	anns, found, err := annotationsDriver.read(contentUUID, "")
 	anns = applyDefaultFilters(anns)
 	assert.NoError(err, "Unexpected error for content %s", contentUUID)
 	assert.False(found, "Found annotations for content %s", contentUUID)
@@ -667,7 +743,7 @@ func TestRetrieveAnnotationsWithNAICSOrganisation(t *testing.T) {
 }
 
 func getAndCheckAnnotations(driver CypherDriver, contentUUID string, t *testing.T) Annotations {
-	anns, found, err := driver.read(contentUUID)
+	anns, found, err := driver.read(contentUUID, "")
 	anns = applyDefaultFilters(anns)
 	assert.NoError(t, err, "Unexpected error for content %s", contentUUID)
 	assert.True(t, found, "Found no annotations for content %s", contentUUID)

@@ -10,7 +10,7 @@ import (
 )
 
 type driver interface {
-	read(id string) (anns Annotations, found bool, err error)
+	read(id string, bookmark string) (anns Annotations, found bool, err error)
 	checkConnectivity() error
 }
 
@@ -48,14 +48,19 @@ type neoAnnotation struct {
 	CanonicalLeiCode   string
 	CanonicalPrefLabel string
 
-	//the fields below are populated only for the /content/{uuid}/annotations/{plaformVersion} endpoint
+	// the fields below are populated only for the /content/{uuid}/annotations/{plaformVersion} endpoint
 	FactsetIDs      []string `json:"factsetID,omitempty"`
 	TmeIDs          []string `json:"tmeIDs,omitempty"`
 	UUIDs           []string `json:"uuids,omitempty"`
 	PlatformVersion string   `json:"platformVersion,omitempty"`
 }
 
-func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, err error) {
+// read method reads the annotations for a given contentUUID from Neo4j.
+// If non-empty bookmark is provided, it will be used in the session reading from Neo4j. The bookmark guarantees
+// that the instance executing the read transaction is at least up to date to the point represented by the bookmark.
+// If not existing bookmark is given but in correct format, the read will be successful.
+// If bookmark in not valid format is provided, the read will fail. The format of the bookmarks is checked by the db.
+func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotations, found bool, err error) {
 	var results []neoAnnotation
 
 	query := &cmneo4j.Query{
@@ -147,7 +152,12 @@ func (cd CypherDriver) read(contentUUID string) (anns Annotations, found bool, e
 		Result: &results,
 	}
 
-	err = cd.driver.Read(query)
+	bookmarks := make([]string, 0, 1)
+	if len(bookmark) > 0 {
+		bookmarks = append(bookmarks, bookmark)
+	}
+
+	_, err = cd.driver.ReadMultiple([]*cmneo4j.Query{query}, bookmarks)
 	if errors.Is(err, cmneo4j.ErrNoResultsFound) {
 		return Annotations{}, false, nil
 	}

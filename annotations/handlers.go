@@ -9,6 +9,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const Neo4jBookmarkHeader = "Neo4j-Bookmark"
+
 // HandlerCtx contains objects needed from the annotations http handlers and is being passed to them as param
 type HandlerCtx struct {
 	AnnotationsDriver  driver
@@ -34,6 +36,8 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 		vars := mux.Vars(r)
 		uuid := vars["uuid"]
 
+		bookmark := r.Header.Get(Neo4jBookmarkHeader)
+
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		if uuid == "" {
 			http.Error(w, "uuid required", http.StatusBadRequest)
@@ -57,7 +61,7 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 			}
 		}
 
-		annotations, found, err := hctx.AnnotationsDriver.read(uuid)
+		annotations, found, err := hctx.AnnotationsDriver.read(uuid, bookmark)
 		if err != nil {
 			hctx.Log.WithError(err).WithUUID(uuid).Error("failed getting annotations for content")
 			writeResponseError(hctx, w, http.StatusServiceUnavailable, uuid, `{"message":"Error getting annotations for content with uuid %s"}`)
