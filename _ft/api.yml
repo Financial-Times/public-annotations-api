@@ -22,9 +22,10 @@ paths:
     get:
       summary: Retrieves the annotations for a piece of content.
       description:
-        Given UUID of some content as a path parameter, responds with the
-        annotations of the requested piece of content in json format.
-        If any of the concepts used in the annotations is deprecated the response will contain \"isDeprecated:true\" for that concept.
+        Given UUID of some content as a path parameter, responds with the annotations of the requested piece of content 
+        in json format. If any of the concepts used in the annotations is deprecated the response will contain 
+        \"isDeprecated:true\" for that concept. If Neo4j-Bookmarks header is provided the read request will happen from
+        Neo4j instance up to date to the point represented by the bookmark.
       tags:
         - Public API
       parameters:
@@ -35,8 +36,8 @@ paths:
           example: 59439611-a23a-38ae-8615-b35a80d4e6f1
           schema:
             type: string
-        - name: lifecycle
-          in: query
+        - in: query
+          name: lifecycle
           required: false
           schema:
             type: array
@@ -47,6 +48,11 @@ paths:
                 - v1
                 - pac
                 - v2
+        - in: header
+          name: Neo4j-Bookmark
+          schema:
+            type: string
+          required: false
       responses:
         "200":
           description: Returns the annotations if they exists.

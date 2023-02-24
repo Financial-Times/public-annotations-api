@@ -10,6 +10,7 @@ workflows:
           name: build-and-test-project
           executor-name:
             name: ft-golang-ci/default-with-neo4j
+            neo4j-image-version: 4.4-enterprise
           context: cm-team-github
       - ft-golang-ci/docker-build:
           name: build-docker-image
@@ -20,6 +21,6 @@ workflows:
     jobs:
       - ft-golang-ci/scan:
           name: scan-dependencies
-          context: 
+          context:
             - cm-team-snyk
             - cm-team-github

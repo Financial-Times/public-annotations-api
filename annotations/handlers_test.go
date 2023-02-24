@@ -29,7 +29,7 @@ func TestGetHandler(t *testing.T) {
 			name: "Success",
 			req:  newRequest(fmt.Sprintf("/content/%s/annotations", knownUUID)),
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns Annotations, found bool, err error) {
+				readFunc: func(string, string) (anns Annotations, found bool, err error) {
 					return []Annotation{}, true, nil
 				},
 			},
@@ -40,7 +40,7 @@ func TestGetHandler(t *testing.T) {
 			name: "NotFound",
 			req:  newRequest(fmt.Sprintf("/content/%s/annotations", "99999")),
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns Annotations, found bool, err error) {
+				readFunc: func(string, string) (anns Annotations, found bool, err error) {
 					return []Annotation{}, false, nil
 				},
 			},
@@ -51,7 +51,7 @@ func TestGetHandler(t *testing.T) {
 			name: "ReadError",
 			req:  newRequest(fmt.Sprintf("/content/%s/annotations", knownUUID)),
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns Annotations, found bool, err error) {
+				readFunc: func(string, string) (anns Annotations, found bool, err error) {
 					return nil, false, errors.New("TEST failing to READ")
 				},
 			},
@@ -85,7 +85,7 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 	}{
 		"request with valid lifecycle parameter should succeed": {
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns Annotations, found bool, err error) {
+				readFunc: func(string, string) (anns Annotations, found bool, err error) {
 					return []Annotation{}, true, nil
 				},
 			},
@@ -95,7 +95,7 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 		},
 		"request with invalid lifecycle parameter should fail": {
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns Annotations, found bool, err error) {
+				readFunc: func(string, string) (anns Annotations, found bool, err error) {
 					return []Annotation{}, true, nil
 				},
 			},
@@ -105,7 +105,7 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 		},
 		"request with lifecycle parameters should apply additional filtering": {
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns Annotations, found bool, err error) {
+				readFunc: func(string, string) (anns Annotations, found bool, err error) {
 					return []Annotation{pacAnnotationA, pacAnnotationB, v1AnnotationA, v1AnnotationB, v2AnnotationA, v2AnnotationB}, true, nil
 				},
 			},
@@ -168,7 +168,7 @@ func TestMethodeNotFound(t *testing.T) {
 			name: "NotFound",
 			req:  newRequest(fmt.Sprintf("/content/%s/annotations/", knownUUID)),
 			annotationsDriver: mockDriver{
-				readFunc: func(string) (anns Annotations, found bool, err error) {
+				readFunc: func(string, string) (anns Annotations, found bool, err error) {
 					return []Annotation{}, true, nil
 				},
 			},
@@ -192,6 +192,80 @@ func TestMethodeNotFound(t *testing.T) {
 	}
 }
 
+func TestGetHandlerWithSetBookmarkHeader(t *testing.T) {
+	tests := []struct {
+		name               string
+		req                *http.Request
+		annotationsDriver  mockDriver
+		bookmark           string
+		expectedStatusCode int
+		expectedBody       string
+	}{
+		{
+			name: "Empty bookmark",
+			req:  newRequest(fmt.Sprintf("/content/%s/annotations", knownUUID)),
+			annotationsDriver: mockDriver{
+				readFunc: func(uuid string, bookmark string) (anns Annotations, found bool, err error) {
+					if bookmark != "" {
+						return []Annotation{}, false, errors.New("unexpected bookmark")
+					}
+
+					return Annotations{
+						Annotation{
+							Predicate: "http://www.ft.com/ontology/annotation/about",
+							ID:        "6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18",
+						},
+					}, true, nil
+				},
+			},
+			bookmark:           "",
+			expectedStatusCode: http.StatusOK,
+			expectedBody:       "[{\"predicate\":\"http://www.ft.com/ontology/annotation/about\",\"id\":\"6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18\",\"apiUrl\":\"\",\"types\":null}]",
+		},
+		{
+			name: "Not empty bookmark",
+			req:  newRequest(fmt.Sprintf("/content/%s/annotations", knownUUID)),
+			annotationsDriver: mockDriver{
+				readFunc: func(uuid string, bookmark string) (anns Annotations, found bool, err error) {
+					if bookmark != "FB:kcwQnrEEnFpfSJ2PtiykK/JNh8oBozhIkA==" {
+						return []Annotation{}, false, errors.New("unexpected bookmark")
+					}
+
+					return Annotations{
+						Annotation{
+							Predicate: "http://www.ft.com/ontology/annotation/about",
+							ID:        "6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18",
+						},
+					}, true, nil
+				},
+			},
+			bookmark:           "FB:kcwQnrEEnFpfSJ2PtiykK/JNh8oBozhIkA==",
+			expectedStatusCode: http.StatusOK,
+			expectedBody:       "[{\"predicate\":\"http://www.ft.com/ontology/annotation/about\",\"id\":\"6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18\",\"apiUrl\":\"\",\"types\":null}]",
+		},
+	}
+
+	for _, test := range tests {
+		hctx := &HandlerCtx{
+			AnnotationsDriver:  test.annotationsDriver,
+			CacheControlHeader: "test-header",
+			Log:                logger.NewUPPInfoLogger("test-public-annotations-api"),
+		}
+		rec := httptest.NewRecorder()
+		r := mux.NewRouter()
+		r.HandleFunc("/content/{uuid}/annotations", GetAnnotations(hctx)).Methods("GET")
+
+		// Set the test bookmark in the request header.
+		// The verification that the correct bookmark header was sent to the read method is checked in the mock read
+		// method of the test object.
+		test.req.Header.Add(Neo4jBookmarkHeader, test.bookmark)
+		r.ServeHTTP(rec, test.req)
+
+		assert.True(t, test.expectedStatusCode == rec.Code, fmt.Sprintf("%s: Wrong response code, was %d, should be %d", test.name, rec.Code, test.expectedStatusCode))
+		assert.JSONEq(t, test.expectedBody, rec.Body.String(), fmt.Sprintf("%s: Wrong body", test.name))
+	}
+}
+
 func newRequest(url string) *http.Request {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -206,16 +280,16 @@ func message(errMsg string) string {
 }
 
 type mockDriver struct {
-	readFunc              func(string) (Annotations, bool, error)
+	readFunc              func(string, string) (Annotations, bool, error)
 	checkConnectivityFunc func() error
 }
 
-func (md mockDriver) read(contentUUID string) (Annotations, bool, error) {
+func (md mockDriver) read(contentUUID, bookmark string) (Annotations, bool, error) {
 	if md.readFunc == nil {
 		return nil, false, errors.New("not implemented")
 	}
 
-	return md.readFunc(contentUUID)
+	return md.readFunc(contentUUID, bookmark)
 }
 
 func (md mockDriver) checkConnectivity() error {
