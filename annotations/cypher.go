@@ -1,13 +1,15 @@
 package annotations
 
 import (
-	"fmt"
-
 	"errors"
+	"fmt"
+	"net/url"
 
+	ontology "github.com/Financial-Times/cm-graph-ontology"
 	cmneo4j "github.com/Financial-Times/cm-neo4j-driver"
-	"github.com/Financial-Times/neo-model-utils-go/mapper"
 )
+
+const IDPrefix = "http://api.ft.com/things/"
 
 type driver interface {
 	read(id string, bookmark string) (anns Annotations, found bool, err error)
@@ -15,12 +17,12 @@ type driver interface {
 }
 
 type CypherDriver struct {
-	driver *cmneo4j.Driver
-	env    string
+	driver  *cmneo4j.Driver
+	baseURL string
 }
 
-func NewCypherDriver(driver *cmneo4j.Driver, env string) CypherDriver {
-	return CypherDriver{driver: driver, env: env}
+func NewCypherDriver(driver *cmneo4j.Driver, baseURL string) CypherDriver {
+	return CypherDriver{driver: driver, baseURL: baseURL}
 }
 
 func (cd CypherDriver) checkConnectivity() error {
@@ -170,7 +172,7 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 	found = false
 
 	for idx := range results {
-		annotation, err := mapToResponseFormat(results[idx], cd.env)
+		annotation, err := mapToResponseFormat(results[idx], cd.baseURL)
 		if err == nil {
 			found = true
 			mappedAnnotations = append(mappedAnnotations, annotation)
@@ -180,7 +182,7 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 	return mappedAnnotations, found, nil
 }
 
-func mapToResponseFormat(neoAnn neoAnnotation, env string) (Annotation, error) {
+func mapToResponseFormat(neoAnn neoAnnotation, baseURL string) (Annotation, error) {
 	var ann Annotation
 
 	ann.PrefLabel = neoAnn.PrefLabel
@@ -195,11 +197,22 @@ func mapToResponseFormat(neoAnn neoAnnotation, env string) (Annotation, error) {
 			},
 		}
 	}
-	ann.APIURL = mapper.APIURL(neoAnn.ID, neoAnn.Types, env)
-	ann.ID = mapper.IDURL(neoAnn.ID)
-	types := mapper.TypeURIs(neoAnn.Types)
-	if len(types) == 0 {
-		return ann, fmt.Errorf("could not map type URIs for ID %s with types %s: concept not found", ann.ID, ann.Types)
+
+	apiURL, err := ontology.APIURL(neoAnn.ID, neoAnn.Types, baseURL)
+	if err != nil {
+		return ann, fmt.Errorf("could not construct api url for uuid %s with types %s", neoAnn.ID, neoAnn.Types)
+	}
+	ann.APIURL = apiURL
+
+	id, err := getIDURI(neoAnn.ID)
+	if err != nil {
+		return ann, fmt.Errorf("could not construct ID uri for uuid %s", neoAnn.ID)
+	}
+	ann.ID = id
+
+	types, err := ontology.TypeURIs(neoAnn.Types)
+	if err != nil || len(types) == 0 {
+		return ann, fmt.Errorf("could not map type URIs for uuid %s with types %s: concept not found", neoAnn.ID, neoAnn.Types)
 	}
 	ann.Types = types
 
@@ -213,6 +226,10 @@ func mapToResponseFormat(neoAnn neoAnnotation, env string) (Annotation, error) {
 	ann.GeonamesFeatureCode = neoAnn.GeonamesFeatureCode
 
 	return ann, nil
+}
+
+func getIDURI(uuid string) (string, error) {
+	return url.JoinPath(IDPrefix, uuid)
 }
 
 func getPredicateFromRelationship(relationship string) (predicate string, err error) {

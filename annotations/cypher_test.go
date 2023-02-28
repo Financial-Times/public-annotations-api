@@ -81,6 +81,8 @@ const (
 	locationType     = "http://www.ft.com/ontology/Location"
 	genreType        = "http://www.ft.com/ontology/Genre"
 	organisationType = "http://www.ft.com/ontology/organisation/Organisation"
+
+	publicAPIURL = "http://api.ft.com"
 )
 
 var (
@@ -151,6 +153,10 @@ var (
 		locationType:     "http://api.ft.com/things/%s",
 		organisationType: "http://api.ft.com/organisations/%s",
 	}
+
+	annotationsChangeFields = []string{
+		"prefUUID", "prefLabel", "type", "leiCode", "figiCode", "issuedBy", "geonamesFeatureCode", "isDeprecated",
+	}
 )
 
 func init() {
@@ -218,7 +224,7 @@ func (s *cypherDriverTestSuite) TestRetrieveMultipleAnnotations() {
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentUUID, s.T())
 	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
@@ -235,7 +241,7 @@ func (s *cypherDriverTestSuite) TestRetrievePacAndV2AnnotationsAsPriority() {
 		expectedAnnotation(brandChildUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
 	}
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	writePacAnnotations(s.T(), s.driver)
 	// assert data for filtering
 	numOfV1Annotations, _ := count(v1Lifecycle, s.driver)
@@ -265,7 +271,7 @@ func (s *cypherDriverTestSuite) TestRetrieveImplicitAbouts() {
 		getExpectedMentionsFakebookAnnotation(),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	writeAboutAnnotations(s.T(), s.driver)
 
 	anns := getAndCheckAnnotations(annotationsDriver, contentUUID, s.T())
@@ -286,7 +292,7 @@ func (s *cypherDriverTestSuite) TestRetrieveCyclicImplicitAbouts() {
 		getExpectedMallStreetJournalAnnotation(),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	writeCyclicAboutAnnotations(s.T(), s.driver)
 
 	anns := getAndCheckAnnotations(annotationsDriver, contentUUID, s.T())
@@ -308,7 +314,7 @@ func (s *cypherDriverTestSuite) TestRetrieveMultipleAnnotationsIfPacAnnotationCa
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	writeBrokenPacAnnotations(s.T(), s.driver)
 	// assert data for filtering
 	numOfV1Annotations, _ := count(v1Lifecycle, s.driver)
@@ -329,7 +335,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithParentBrand() {
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentWithParentAndChildBrandUUID, s.T())
 	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
@@ -342,7 +348,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithGrandParentBrand() {
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentWithThreeLevelsOfBrandUUID, s.T())
 	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
@@ -354,7 +360,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithCircularBrand() {
 		expectedAnnotation(brandCircularBUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentWithCircularBrandUUID, s.T())
 	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
@@ -365,7 +371,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentWithJustParentBrand() {
 		expectedAnnotation(brandParentUUID, brandType, predicates["IS_CLASSIFIED_BY"], v1Lifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentWithOnlyFTUUID, s.T())
 	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
@@ -379,7 +385,7 @@ func (s *cypherDriverTestSuite) TestRetrieveContentBrandsOfDifferentTypes() {
 		expectedAnnotation(brandCircularBUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], v1Lifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentWithCircularBrandUUID, s.T())
 	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
@@ -395,7 +401,7 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationWithHasBrand() {
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
 	}
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentWithHasBrand, s.T())
 	assert.Equal(s.T(), len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
@@ -409,10 +415,11 @@ func (s *cypherDriverTestSuite) TestTransitivePropertyOfImpliedBy() {
 	assert.NoError(t, contentRW.Initialise())
 
 	log := logger.NewUPPLogger("public-annotations-api-test", "PANIC")
-	conceptRW := concepts.NewConceptService(driver, log)
+	conceptRW := concepts.NewConceptService(driver, log, annotationsChangeFields)
 	assert.NoError(t, conceptRW.Initialise())
 
-	annotationRW := annrw.NewCypherAnnotationsService(s.driver)
+	annotationRW, err := annrw.NewCypherAnnotationsService(s.driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, annotationRW.Initialise())
 
 	writeContent := func(fixture string) string {
@@ -464,7 +471,7 @@ func (s *cypherDriverTestSuite) TestTransitivePropertyOfImpliedBy() {
 
 	writeJSONToAnnotationsService(t, annotationRW, "pac", "annotations-pac", contentID, "./testdata/testImplicitlyClassifiedBy/annotations.json")
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentID, t)
 	assert.Equal(t, len(expected), len(anns), "Didn't get the same number of annotations")
 	assertListContainsAll(t, anns, expected)
@@ -481,10 +488,11 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithImpliedBy() {
 	assert.NoError(t, contentRW.Initialise())
 
 	log := logger.NewUPPLogger("public-annotations-api-test", "PANIC")
-	conceptRW := concepts.NewConceptService(driver, log)
+	conceptRW := concepts.NewConceptService(driver, log, annotationsChangeFields)
 	assert.NoError(t, conceptRW.Initialise())
 
-	annotationRW := annrw.NewCypherAnnotationsService(s.driver)
+	annotationRW, err := annrw.NewCypherAnnotationsService(s.driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, annotationRW.Initialise())
 
 	writeConcept := func(fixture string) (string, string) {
@@ -555,7 +563,7 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithImpliedBy() {
 
 			writeJSONToAnnotationsService(t, annotationRW, "pac", "annotations-pac", contentID, test.Annotations)
 
-			annotationsDriver := NewCypherDriver(s.driver, "prod")
+			annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 			anns := getAndCheckAnnotations(annotationsDriver, contentID, t)
 			assert.Equal(t, len(test.ExpectedAnnotations), len(anns), "Didn't get the same number of annotations")
 			assertListContainsAll(t, anns, test.ExpectedAnnotations)
@@ -585,7 +593,7 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithValidBookmark() {
 	}, []string{})
 	assert.NoError(s.T(), err, "Unexpected error writing a thing")
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 
 	anns, found, err := annotationsDriver.read(contentUUID, bookmark)
 	anns = applyDefaultFilters(anns)
@@ -611,7 +619,7 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithNonExistingBookmark()
 	// successfully without complying to the bookmark.
 	nonExistingBookmark := "FB:kcwQnrEEnFpfSJ2PtiykK/JNh8oBozhIkA=="
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 
 	anns, found, err := annotationsDriver.read(contentUUID, nonExistingBookmark)
 	anns = applyDefaultFilters(anns)
@@ -628,7 +636,7 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithInvalidBookmark() {
 	// exactly is not okay with the format of the bookmark.
 	invalidBookmark := "sm:invalid"
 
-	annotationsDriver := NewCypherDriver(s.driver, "prod")
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
 
 	anns, found, err := annotationsDriver.read(contentUUID, invalidBookmark)
 	assert.Error(s.T(), err)
@@ -649,7 +657,7 @@ func TestRetrieveNoAnnotationsWhenThereAreNonePresentExceptBrands(t *testing.T) 
 
 	defer cleanDB(t, driver)
 
-	annotationsDriver := NewCypherDriver(driver, "prod")
+	annotationsDriver := NewCypherDriver(driver, publicAPIURL)
 	anns, found, err := annotationsDriver.read(contentWithNoAnnotationsUUID, "")
 	anns = applyDefaultFilters(anns)
 	assert.NoError(err, "Unexpected error for content %s", contentWithNoAnnotationsUUID)
@@ -673,7 +681,7 @@ func TestRetrieveAnnotationWithCorrectValues(t *testing.T) {
 		getExpectedMallStreetJournalAnnotation(),
 	}
 
-	annotationsDriver := NewCypherDriver(d, "prod")
+	annotationsDriver := NewCypherDriver(d, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentUUID, t)
 
 	assert.Equal(len(expectedAnnotations), len(anns), "Didn't get the same number of annotations")
@@ -700,7 +708,7 @@ func TestRetrieveNoAnnotationsWhenThereAreNoConceptsPresent(t *testing.T) {
 
 	defer cleanDB(t, driver)
 
-	annotationsDriver := NewCypherDriver(driver, "prod")
+	annotationsDriver := NewCypherDriver(driver, publicAPIURL)
 	anns, found, err := annotationsDriver.read(contentUUID, "")
 	anns = applyDefaultFilters(anns)
 	assert.NoError(err, "Unexpected error for content %s", contentUUID)
@@ -711,7 +719,8 @@ func TestRetrieveNoAnnotationsWhenThereAreNoConceptsPresent(t *testing.T) {
 func TestRetrieveAnnotationsWithNAICSOrganisation(t *testing.T) {
 	assert := assert.New(t)
 	driver := getNeo4jDriver(t)
-	annService := annrw.NewCypherAnnotationsService(driver)
+	annService, err := annrw.NewCypherAnnotationsService(driver, publicAPIURL)
+	assert.NoError(err)
 	assert.NoError(annService.Initialise())
 	log := logger.NewUPPLogger("public-annotations-api-test", "PANIC")
 
@@ -721,7 +730,7 @@ func TestRetrieveAnnotationsWithNAICSOrganisation(t *testing.T) {
 	writeV2Annotations(t, driver)
 	defer cleanDB(t, driver)
 
-	annotationsDriver := NewCypherDriver(driver, "prod")
+	annotationsDriver := NewCypherDriver(driver, publicAPIURL)
 	anns := getAndCheckAnnotations(annotationsDriver, contentWithNAICSOrgUUID, t)
 
 	expectedAnnotations := Annotations{
@@ -767,7 +776,7 @@ func writeAllDataToDB(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
 }
 
 func writeBrands(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
-	brandRW := concepts.NewConceptService(d, log)
+	brandRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, brandRW.Initialise())
 	writeJSONToService(brandRW, "./testdata/Brand-dbb0bdae-1f0c-1a1a-b0cb-b2227cce2b54-parent.json", t)
 	writeJSONToService(brandRW, "./testdata/Brand-ff691bf8-8d92-1a1a-8326-c273400bff0b-child.json", t)
@@ -793,7 +802,7 @@ func writeContent(t testing.TB, d *cmneo4j.Driver) {
 }
 
 func writeTopics(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
-	topicsRW := concepts.NewConceptService(d, log)
+	topicsRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, topicsRW.Initialise())
 	writeJSONToService(topicsRW, "./testdata/Topics-7e22c8b8-b280-4e52-aa22-fa1c6dffd894.json", t)
 	writeJSONToService(topicsRW, "./testdata/Topics-b6469cc2-f6ff-45aa-a9bb-3d1bb0f9a35d.json", t)
@@ -805,7 +814,7 @@ func writeTopics(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concept
 }
 
 func writeOrganisations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
-	organisationRW := concepts.NewConceptService(d, log)
+	organisationRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, organisationRW.Initialise())
 	writeJSONToService(organisationRW, "./testdata/Organisation-MSJ-5d1510f8-2779-4b74-adab-0a5eb138fca6.json", t)
 	writeJSONToService(organisationRW, "./testdata/Organisation-Fakebook-eac853f5-3859-4c08-8540-55e043719400.json", t)
@@ -814,7 +823,7 @@ func writeOrganisations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) 
 }
 
 func writeLocations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
-	locationRW := concepts.NewConceptService(d, log)
+	locationRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, locationRW.Initialise())
 	writeJSONToService(locationRW, "./testdata/Location-82cba3ce-329b-3010-b29d-4282a215889f.json", t)
 	writeJSONToService(locationRW, "./testdata/Location-8d54e308-807c-4e9e-9981-8faab10b6f1c.json", t)
@@ -824,40 +833,41 @@ func writeLocations(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
 }
 
 func writePeople(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
-	peopleRW := concepts.NewConceptService(d, log)
+	peopleRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, peopleRW.Initialise())
 	writeJSONToService(peopleRW, "./testdata/People-75e2f7e9-cb5e-40a5-a074-86d69fe09f69.json", t)
 	return peopleRW
 }
 
 func writeFinancialInstruments(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
-	fiRW := concepts.NewConceptService(d, log)
+	fiRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, fiRW.Initialise())
 	writeJSONToService(fiRW, "./testdata/FinancialInstrument-77f613ad-1470-422c-bf7c-1dd4c3fd1693.json", t)
 }
 
 func writeSubjects(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
-	subjectsRW := concepts.NewConceptService(d, log)
+	subjectsRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, subjectsRW.Initialise())
 	writeJSONToService(subjectsRW, "./testdata/Subject-MetalMickey-0483bef8-5797-40b8-9b25-b12e492f63c6.json", t)
 	return subjectsRW
 }
 
 func writeAlphavilleSeries(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) concepts.ConceptService {
-	alphavilleSeriesRW := concepts.NewConceptService(d, log)
+	alphavilleSeriesRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, alphavilleSeriesRW.Initialise())
 	writeJSONToService(alphavilleSeriesRW, "./testdata/TestAlphavilleSeries.json", t)
 	return alphavilleSeriesRW
 }
 
 func writeGenres(t testing.TB, d *cmneo4j.Driver, log *logger.UPPLogger) {
-	genresRW := concepts.NewConceptService(d, log)
+	genresRW := concepts.NewConceptService(d, log, annotationsChangeFields)
 	assert.NoError(t, genresRW.Initialise())
 	writeJSONToService(genresRW, "./testdata/Genre-6da31a37-691f-4908-896f-2829ebe2309e-opinion.json", t)
 }
 
 func writeV1Annotations(t testing.TB, driver *cmneo4j.Driver) {
-	service := annrw.NewCypherAnnotationsService(driver)
+	service, err := annrw.NewCypherAnnotationsService(driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, service.Initialise())
 
 	writeJSONToAnnotationsService(t, service, v1PlatformVersion, v1Lifecycle, contentUUID, "./testdata/Annotations-3fc9fe3e-af8c-4f7f-961a-e5065392bb31-v1.json")
@@ -869,38 +879,44 @@ func writeV1Annotations(t testing.TB, driver *cmneo4j.Driver) {
 }
 
 func writeV2Annotations(t testing.TB, driver *cmneo4j.Driver) {
-	service := annrw.NewCypherAnnotationsService(driver)
+	service, err := annrw.NewCypherAnnotationsService(driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, v2PlatformVersion, v2Lifecycle, contentUUID, "./testdata/Annotations-3fc9fe3e-af8c-4f7f-961a-e5065392bb31-v2.json")
 	writeJSONToAnnotationsService(t, service, v2PlatformVersion, v2Lifecycle, contentWithNAICSOrgUUID, "./testdata/Annotations-3fc9fe3e-af8c-7a7a-961a-e5065392bb31-v2.json")
 }
 
 func writePacAnnotations(t testing.TB, driver *cmneo4j.Driver) {
-	service := annrw.NewCypherAnnotationsService(driver)
+	service, err := annrw.NewCypherAnnotationsService(driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentUUID, "./testdata/Annotations-3fc9fe3e-af8c-4f7f-961a-e5065392bb31-pac.json")
 }
 
 func writeHasBrandAnnotations(t testing.TB, driver *cmneo4j.Driver) {
-	service := annrw.NewCypherAnnotationsService(driver)
+	service, err := annrw.NewCypherAnnotationsService(driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentWithHasBrand, "./testdata/Annotations-ae17012e-ad40-11e9-8030-530adfa879c2-pac.json")
 }
 
 func writeAboutAnnotations(t testing.TB, driver *cmneo4j.Driver) {
-	service := annrw.NewCypherAnnotationsService(driver)
+	service, err := annrw.NewCypherAnnotationsService(driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentUUID, "./testdata/Annotations-ca982370-66cd-43bd-b2e3-7bfcb73efb1e-and-82cba3ce-329b-3010-b29d-4282a215889f-implicit-abouts.json")
 }
 
 func writeCyclicAboutAnnotations(t testing.TB, driver *cmneo4j.Driver) {
-	service := annrw.NewCypherAnnotationsService(driver)
+	service, err := annrw.NewCypherAnnotationsService(driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, "pac", "annotations-pac", contentUUID, "./testdata/Annotations-7e22c8b8-b280-4e52-aa22-fa1c6dffd894-cyclic-implicit-abouts.json")
 }
 
 func writeBrokenPacAnnotations(t testing.TB, driver *cmneo4j.Driver) {
-	service := annrw.NewCypherAnnotationsService(driver)
+	service, err := annrw.NewCypherAnnotationsService(driver, publicAPIURL)
+	assert.NoError(t, err)
 	assert.NoError(t, service.Initialise())
 	writeJSONToAnnotationsService(t, service, emptyPlatformVersion, pacLifecycle, contentUUID, "./testdata/Annotations-3fc9fe3e-af8c-4f7f-961a-e5065392bb31-broken-pac.json")
 }
@@ -938,7 +954,7 @@ func writeJSONToAnnotationsService(t testing.TB, service annrw.Service, platform
 	dec := json.NewDecoder(f)
 	inst, err := service.DecodeJSON(dec)
 	assert.NoError(t, err, "Error parsing file %s", pathToJSONFile)
-	err = service.Write(contentUUID, lifecycle, platformVersion, "TID_TEST", inst)
+	_, err = service.Write(contentUUID, lifecycle, platformVersion, inst)
 	assert.NoError(t, err)
 	err = f.Close()
 	assert.NoError(t, err)

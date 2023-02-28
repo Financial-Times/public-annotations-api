@@ -40,10 +40,11 @@ func main() {
 		Desc:   "Port to listen on",
 		EnvVar: "PORT",
 	})
-	env := app.String(cli.StringOpt{
-		Name:  "env",
-		Value: "local",
-		Desc:  "environment this app is running in",
+	apiURL := app.String(cli.StringOpt{
+		Name:   "publicAPIURL",
+		Value:  "http://api.ft.com",
+		Desc:   "API Gateway URL used when building the apiUrl field in the response, in the format scheme://host",
+		EnvVar: "PUBLIC_API_URL",
 	})
 	cacheDuration := app.String(cli.StringOpt{
 		Name:   "cache-duration",
@@ -75,7 +76,7 @@ func main() {
 
 	app.Action = func() {
 		log.Infof("public-annotations-api will listen on port: %s, connecting to: %s", *port, *neoURL)
-		err := runServer(*neoURL, *port, *cacheDuration, *env, *apiYml, dbDriverLogger, log)
+		err := runServer(*neoURL, *port, *cacheDuration, *apiURL, *apiYml, dbDriverLogger, log)
 		if err != nil {
 			log.WithError(err).Error("failed to start public-annotations-api service")
 			return
@@ -90,7 +91,7 @@ func main() {
 	}
 }
 
-func runServer(neoURL, port, cacheDuration, env, apiYml string, dbDriverLogger, log *logger.UPPLogger) error {
+func runServer(neoURL, port, cacheDuration, apiURL, apiYml string, dbDriverLogger, log *logger.UPPLogger) error {
 	duration, durationErr := time.ParseDuration(cacheDuration)
 	if durationErr != nil {
 		return fmt.Errorf("failed to parse cache duration string: %w", durationErr)
@@ -102,7 +103,7 @@ func runServer(neoURL, port, cacheDuration, env, apiYml string, dbDriverLogger, 
 		return fmt.Errorf("could not create a new driver: %w", err)
 	}
 
-	annotationsDriver := annotations.NewCypherDriver(driver, env)
+	annotationsDriver := annotations.NewCypherDriver(driver, apiURL)
 	handlersCtx := annotations.NewHandlerCtx(annotationsDriver, cacheControlHeader, log)
 	return routeRequests(port, handlersCtx, apiYml)
 }
