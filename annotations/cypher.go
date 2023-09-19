@@ -30,19 +30,22 @@ func (cd CypherDriver) checkConnectivity() error {
 }
 
 type neoAnnotation struct {
-	Predicate           string
-	ID                  string
-	APIURL              string
-	Types               []string
-	LeiCode             string
-	FIGI                string
-	NAICSIdentifier     string
-	NAICSPrefLabel      string
-	NAICSRank           int
-	PrefLabel           string
-	GeonamesFeatureCode string
-	Lifecycle           string
-	IsDeprecated        bool
+	Predicate               string
+	ID                      string
+	APIURL                  string
+	Types                   []string
+	LeiCode                 string
+	FIGI                    string
+	NAICSIdentifier         string
+	NAICSPrefLabel          string
+	NAICSRank               int
+	PrefLabel               string
+	GeonamesFeatureCode     string
+	Lifecycle               string
+	IsDeprecated            bool
+	ContentPublication      string
+	RelationshipPublication string
+	ConceptPublication      string
 
 	// Canonical information
 	PrefUUID           string
@@ -67,7 +70,7 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 
 	query := &cmneo4j.Query{
 		Cypher: `
-		MATCH (content:Content{uuid:$contentUUID})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
+		MATCH (content:Content{uuid:$contentUUID})-[rel]-(source:Thing)-[:EQUIVALENT_TO]->(canonicalConcept:Thing)
 		OPTIONAL MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(:Concept)<-[:ISSUED_BY]-(figi:FinancialInstrument)
 		OPTIONAL MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(:Concept)-[naicsRel:HAS_INDUSTRY_CLASSIFICATION{rank:1}]->(NAICSIndustryClassification)-[:EQUIVALENT_TO]->(naics:NAICSIndustryClassification)
 		RETURN
@@ -82,7 +85,10 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			naics.industryIdentifier as naicsIdentifier,
 			naics.prefLabel as naicsPrefLabel,
 			naicsRel.rank as naicsRank,
-			rel.lifecycle as lifecycle
+			rel.lifecycle as lifecycle,
+			rel.publication as relationshipPublication,
+			content.publication as contentPublication,
+			source.authority as conceptPublication
 		UNION
 		MATCH (content:Content{uuid:$contentUUID})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
 		OPTIONAL MATCH (canonicalBrand)<-[:EQUIVALENT_TO]-(leafBrand:Brand)-[r:HAS_PARENT*0..]->(parentBrand:Brand)-[:EQUIVALENT_TO]->(canonicalParent:Brand)
@@ -98,9 +104,12 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
+			null as relationshipPublication,
+			null as contentPublication,
+			null as conceptPublication,
 			rel.lifecycle as lifecycle
 		UNION
-		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
+		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Thing)-[:EQUIVALENT_TO]->(canonicalConcept:Thing)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Topic)<-[:IMPLIED_BY*1..]-(impliedByBrand:Brand)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
 		RETURN 
 			DISTINCT canonicalBrand.prefUUID as id,
@@ -114,11 +123,14 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
+			null as relationshipPublication,
+			null as contentPublication,
+			null as conceptPublication,
 			rel.lifecycle as lifecycle
 		UNION
-		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
-		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Concept)-[:HAS_BROADER*1..]->(implicit:Concept)-[:EQUIVALENT_TO]->(canonicalImplicit)
-		WHERE NOT (canonicalImplicit)<-[:EQUIVALENT_TO]-(:Concept)<-[:ABOUT]-(content) // filter out the original abouts
+		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Thing)-[:EQUIVALENT_TO]->(canonicalConcept:Thing)
+		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Thing)-[:HAS_BROADER*1..]->(implicit:Thing)-[:EQUIVALENT_TO]->(canonicalImplicit)
+		WHERE NOT (canonicalImplicit)<-[:EQUIVALENT_TO]-(:Thing)<-[:ABOUT]-(content) // filter out the original abouts
 		RETURN 
 			DISTINCT canonicalImplicit.prefUUID as id,
 			canonicalImplicit.isDeprecated as isDeprecated,
@@ -131,11 +143,14 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
+			null as relationshipPublication,
+			null as contentPublication,
+			null as conceptPublication,
 			rel.lifecycle as lifecycle
 		UNION
-		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
+		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Thing)-[:EQUIVALENT_TO]->(canonicalConcept:Thing)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Location)-[:IS_PART_OF*1..]->(implicit:Concept)-[:EQUIVALENT_TO]->(canonicalImplicit)
-		WHERE NOT (canonicalImplicit)<-[:EQUIVALENT_TO]-(:Concept)<-[:ABOUT]-(content) // filter out the original abouts
+		WHERE NOT (canonicalImplicit)<-[:EQUIVALENT_TO]-(:Thing)<-[:ABOUT]-(content) // filter out the original abouts
 		RETURN 
 			DISTINCT canonicalImplicit.prefUUID as id,
 			canonicalImplicit.isDeprecated as isDeprecated,
@@ -148,6 +163,9 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
+			null as relationshipPublication,
+			null as contentPublication,
+			null as conceptPublication,
 			rel.lifecycle as lifecycle
 		`,
 		Params: map[string]interface{}{"contentUUID": contentUUID},
@@ -224,6 +242,9 @@ func mapToResponseFormat(neoAnn neoAnnotation, baseURL string) (Annotation, erro
 	ann.Lifecycle = neoAnn.Lifecycle
 	ann.IsDeprecated = neoAnn.IsDeprecated
 	ann.GeonamesFeatureCode = neoAnn.GeonamesFeatureCode
+	ann.ContentPublication = neoAnn.ContentPublication
+	ann.RelationshipPublication = neoAnn.RelationshipPublication
+	ann.ConceptPublication = neoAnn.ConceptPublication
 
 	return ann, nil
 }
