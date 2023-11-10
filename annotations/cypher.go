@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	ontology "github.com/Financial-Times/cm-graph-ontology"
+	ontology "github.com/Financial-Times/cm-graph-ontology/v2"
 	cmneo4j "github.com/Financial-Times/cm-neo4j-driver"
 )
 
