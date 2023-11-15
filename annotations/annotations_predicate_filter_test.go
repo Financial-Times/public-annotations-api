@@ -194,7 +194,7 @@ func TestFilterForBasicSingleConcept(t *testing.T) {
 	}
 }
 
-//Tests support for sort needed by other tests in order to compare 2 arrays of annotations
+// Tests support for sort needed by other tests in order to compare 2 arrays of annotations
 func TestSortAnnotations(t *testing.T) {
 	expected := []Annotation{
 		{Predicate: ISCLASSIFIEDBY, ID: "1"},
@@ -211,7 +211,7 @@ func TestSortAnnotations(t *testing.T) {
 	}
 }
 
-//Implementation of sort for an array of structs in order to compare equality of 2 arrays of annotations
+// Implementation of sort for an array of structs in order to compare equality of 2 arrays of annotations
 type By func(p1, p2 *Annotation) bool
 
 type AnnotationSorter struct {

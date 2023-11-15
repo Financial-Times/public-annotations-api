@@ -9,6 +9,7 @@ import (
 const (
 	v1Lifecycle        = "annotations-v1"
 	nextVideoLifecycle = "annotations-next-video"
+	manualLifecycle    = "annotations-manual"
 )
 
 var pacAnnotationA = Annotation{
@@ -57,6 +58,18 @@ var nextVideoAnnotationB = Annotation{
 	ID:        "0d0e6957-cdb4-40cf-a3a5-c61665680eb8",
 	Predicate: MENTIONS,
 	Lifecycle: nextVideoLifecycle,
+}
+
+var manualAnnotationA = Annotation{
+	ID:        "0d0e6957-cdb4-40cf-a3a5-c61665680eb9",
+	Predicate: ABOUT,
+	Lifecycle: manualLifecycle,
+}
+
+var manualAnnotationB = Annotation{
+	ID:        "f00adf2e-6a59-4e2e-8a18-4d63ae0a689d",
+	Predicate: MENTIONS,
+	Lifecycle: manualLifecycle,
 }
 
 func TestFilterOnPACAnnotationsOnly(t *testing.T) {
@@ -240,11 +253,15 @@ func TestAdditionalFilteringNoPACAnnotations(t *testing.T) {
 			lifecycles: []string{"v1", "v2"},
 			expected:   []Annotation{v1AnnotationA, v1AnnotationB, v2AnnotationA, v2AnnotationB},
 		},
+		"additional manual filtering should return manual annotations": {
+			lifecycles: []string{"manual"},
+			expected:   []Annotation{manualAnnotationA, manualAnnotationB},
+		},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			annotations := []Annotation{v1AnnotationA, v1AnnotationB, v2AnnotationA, v2AnnotationB, nextVideoAnnotationA, nextVideoAnnotationB}
+			annotations := []Annotation{v1AnnotationA, v1AnnotationB, v2AnnotationA, v2AnnotationB, nextVideoAnnotationA, nextVideoAnnotationB, manualAnnotationA, manualAnnotationB}
 			f := newLifecycleFilter(withLifecycles(tc.lifecycles))
 			chain := newAnnotationsFilterChain(f)
 			filtered := chain.doNext(annotations)
