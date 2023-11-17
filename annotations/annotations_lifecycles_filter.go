@@ -10,6 +10,7 @@ var lifecycleMap = map[string]string{
 	"v1":         "annotations-v1",
 	"pac":        "annotations-pac",
 	"v2":         "annotations-v2",
+	"manual":     "annotations-manual",
 }
 
 type lifecycleFilter struct {
