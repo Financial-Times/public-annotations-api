@@ -64,7 +64,7 @@ func TestGetHandler(t *testing.T) {
 		hctx := &HandlerCtx{
 			AnnotationsDriver:  test.annotationsDriver,
 			CacheControlHeader: "test-header",
-			Log:                logger.NewUPPInfoLogger("test-public-annotations-api"),
+			Log:                logger.NewUPPLogger("test-public-annotations-api", "panic"),
 		}
 		rec := httptest.NewRecorder()
 		r := mux.NewRouter()

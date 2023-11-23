@@ -296,8 +296,6 @@ func (s *cypherDriverTestSuite) TestRetrieveCyclicImplicitAbouts() {
 	writeCyclicAboutAnnotations(s.T(), s.driver)
 
 	anns := getAndCheckAnnotations(annotationsDriver, contentUUID, s.T())
-	d, _ := json.MarshalIndent(anns, "", "   ")
-	s.T().Log(string(d))
 
 	assert.Len(s.T(), anns, len(expectedAnnotations), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)

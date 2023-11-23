@@ -1,12 +1,14 @@
 module github.com/Financial-Times/public-annotations-api/v3
 
-go 1.20
+go 1.21
+
+toolchain go1.21.2
 
 require (
 	github.com/Financial-Times/annotations-rw-neo4j/v4 v4.8.1
 	github.com/Financial-Times/api-endpoint v1.0.0
 	github.com/Financial-Times/base-ft-rw-app-go/v2 v2.0.0
-	github.com/Financial-Times/cm-graph-ontology v1.2.1
+	github.com/Financial-Times/cm-graph-ontology/v2 v2.0.2
 	github.com/Financial-Times/cm-neo4j-driver v1.1.1
 	github.com/Financial-Times/concepts-rw-neo4j v1.35.9
 	github.com/Financial-Times/content-rw-neo4j/v3 v3.5.3
@@ -24,6 +26,7 @@ require (
 )
 
 require (
+	github.com/Financial-Times/cm-graph-ontology v1.2.0 // indirect
 	github.com/Financial-Times/http-handlers-go v0.0.0-20180517120644-2c20324ab887 // indirect
 	github.com/Financial-Times/transactionid-utils-go v1.0.0 // indirect
 	github.com/Financial-Times/up-rw-app-api-go v0.0.0-20210202155002-307a978447bd // indirect
@@ -39,11 +42,12 @@ require (
 	github.com/mitchellh/hashstructure v1.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/r3labs/diff/v3 v3.0.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v5 v5.3.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9 // indirect
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
