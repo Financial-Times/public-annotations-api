@@ -18,9 +18,10 @@ type Annotation struct {
 	NAICS               []IndustryClassification `json:"NAICS,omitempty"`
 	PrefLabel           string                   `json:"prefLabel,omitempty"`
 	GeonamesFeatureCode string                   `json:"geonamesFeatureCode,omitempty"`
+	IsDeprecated        bool                     `json:"isDeprecated,omitempty"`
+	Publication         []string                 `json:"publication,omitempty"`
 	//used for filtering, e.g. pac not exposed
-	Lifecycle    string `json:"-"`
-	IsDeprecated bool   `json:"isDeprecated,omitempty"`
+	Lifecycle string `json:"-"`
 }
 
 var predicates = map[string]string{

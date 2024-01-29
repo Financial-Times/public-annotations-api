@@ -74,7 +74,8 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 
 		lifecycleFilter := newLifecycleFilter(withLifecycles(lifecycleParams))
 		predicateFilter := NewAnnotationsPredicateFilter()
-		chain := newAnnotationsFilterChain(lifecycleFilter, predicateFilter)
+		publicationFilter := newPublicationFilter(withPublication(params["publication"]))
+		chain := newAnnotationsFilterChain(lifecycleFilter, predicateFilter, publicationFilter)
 
 		annotations = chain.doNext(annotations)
 
