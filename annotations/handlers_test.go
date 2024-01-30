@@ -33,8 +33,8 @@ func TestGetHandler(t *testing.T) {
 					return []Annotation{}, true, nil
 				},
 			},
-			expectedStatusCode: http.StatusOK,
-			expectedBody:       "null",
+			expectedStatusCode: http.StatusNotFound,
+			expectedBody:       "{\"message\":\"No annotations found for content with uuid 12345 for the specified filters.\"}",
 		},
 		{
 			name: "NotFound",
@@ -90,8 +90,8 @@ func TestGetHandlerWithLifecycleQueryParams(t *testing.T) {
 				},
 			},
 			lifecycleParams:    "lifecycle=pac",
-			expectedStatusCode: http.StatusOK,
-			expectedBody:       "null",
+			expectedStatusCode: http.StatusNotFound,
+			expectedBody:       "{\"message\":\"No annotations found for content with uuid 12345 for the specified filters.\"}",
 		},
 		"request with invalid lifecycle parameter should fail": {
 			annotationsDriver: mockDriver{
