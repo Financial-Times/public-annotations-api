@@ -42,6 +42,7 @@ type neoAnnotation struct {
 	PrefLabel           string
 	GeonamesFeatureCode string
 	Lifecycle           string
+	Publication         []string
 	IsDeprecated        bool
 
 	// Canonical information
@@ -82,7 +83,8 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			naics.industryIdentifier as naicsIdentifier,
 			naics.prefLabel as naicsPrefLabel,
 			naicsRel.rank as naicsRank,
-			rel.lifecycle as lifecycle
+			rel.lifecycle as lifecycle,
+			rel.publication as publication
 		UNION
 		MATCH (content:Content{uuid:$contentUUID})-[rel]-(:Concept)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
 		OPTIONAL MATCH (canonicalBrand)<-[:EQUIVALENT_TO]-(leafBrand:Brand)-[r:HAS_PARENT*0..]->(parentBrand:Brand)-[:EQUIVALENT_TO]->(canonicalParent:Brand)
@@ -98,7 +100,8 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
-			rel.lifecycle as lifecycle
+			rel.lifecycle as lifecycle,
+			rel.publication as publication
 		UNION
 		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Topic)<-[:IMPLIED_BY*1..]-(impliedByBrand:Brand)-[:EQUIVALENT_TO]->(canonicalBrand:Brand)
@@ -114,7 +117,8 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
-			rel.lifecycle as lifecycle
+			rel.lifecycle as lifecycle,
+			rel.publication as publication
 		UNION
 		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Concept)-[:HAS_BROADER*1..]->(implicit:Concept)-[:EQUIVALENT_TO]->(canonicalImplicit)
@@ -131,7 +135,8 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
-			rel.lifecycle as lifecycle
+			rel.lifecycle as lifecycle,
+			rel.publication as publication
 		UNION
 		MATCH (content:Content{uuid:$contentUUID})-[rel:ABOUT]-(:Concept)-[:EQUIVALENT_TO]->(canonicalConcept:Concept)
 		MATCH (canonicalConcept)<-[:EQUIVALENT_TO]-(leafConcept:Location)-[:IS_PART_OF*1..]->(implicit:Concept)-[:EQUIVALENT_TO]->(canonicalImplicit)
@@ -148,7 +153,8 @@ func (cd CypherDriver) read(contentUUID string, bookmark string) (anns Annotatio
 			null as naicsIdentifier,
 			null as naicsPrefLabel,
 			null as naicsRank,
-			rel.lifecycle as lifecycle
+			rel.lifecycle as lifecycle,
+			rel.publication as publication
 		`,
 		Params: map[string]interface{}{"contentUUID": contentUUID},
 		Result: &results,
@@ -222,6 +228,7 @@ func mapToResponseFormat(neoAnn neoAnnotation, baseURL string) (Annotation, erro
 	}
 	ann.Predicate = predicate
 	ann.Lifecycle = neoAnn.Lifecycle
+	ann.Publication = neoAnn.Publication
 	ann.IsDeprecated = neoAnn.IsDeprecated
 	ann.GeonamesFeatureCode = neoAnn.GeonamesFeatureCode
 

@@ -74,9 +74,14 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 
 		lifecycleFilter := newLifecycleFilter(withLifecycles(lifecycleParams))
 		predicateFilter := NewAnnotationsPredicateFilter()
-		chain := newAnnotationsFilterChain(lifecycleFilter, predicateFilter)
+		publicationFilter := newPublicationFilter(withPublication(params["publication"]))
+		chain := newAnnotationsFilterChain(lifecycleFilter, predicateFilter, publicationFilter)
 
 		annotations = chain.doNext(annotations)
+		if len(annotations) == 0 {
+			writeResponseError(hctx, w, http.StatusNotFound, uuid, `{"message":"No annotations found for content with uuid %s for the specified filters."}`)
+			return
+		}
 
 		w.Header().Set("Cache-Control", hctx.CacheControlHeader)
 		w.WriteHeader(http.StatusOK)

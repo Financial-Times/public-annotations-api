@@ -48,6 +48,13 @@ paths:
                 - v1
                 - pac
                 - v2
+        - in: query
+          name: publication
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
         - in: header
           name: Neo4j-Bookmark
           schema:
