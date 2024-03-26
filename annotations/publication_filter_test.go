@@ -1,14 +1,14 @@
 package annotations
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
-	sv     = "8e6c705e-1132-42a2-8db0-c295e29e8658"
-	ftPink = "88fdde6c-2aa4-4f78-af02-9f680097cfd6"
-	st     = "6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce19"
+	sv = "8e6c705e-1132-42a2-8db0-c295e29e8658"
+	st = "6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce19"
 )
 
 var annotationA = Annotation{
@@ -29,6 +29,12 @@ var annotationC = Annotation{
 	Publication: []string{sv, st},
 }
 
+var annotationD = Annotation{
+	ID:          "5f2584bf-7f40-4513-94b5-dd340e572996",
+	Predicate:   ABOUT,
+	Publication: nil,
+}
+
 func TestPublicationFiltering(t *testing.T) {
 	tests := map[string]struct {
 		publication []string
@@ -36,7 +42,7 @@ func TestPublicationFiltering(t *testing.T) {
 	}{
 		"Filter by FT Pink publication": {
 			publication: []string{ftPink},
-			expected:    []Annotation{annotationB},
+			expected:    []Annotation{annotationB, annotationD},
 		},
 		"Filter by SV publication": {
 			publication: []string{sv},
@@ -44,11 +50,11 @@ func TestPublicationFiltering(t *testing.T) {
 		},
 		"Filter by SV and FT Pink publication": {
 			publication: []string{sv, ftPink},
-			expected:    []Annotation{annotationA, annotationB, annotationC},
+			expected:    []Annotation{annotationA, annotationB, annotationC, annotationD},
 		},
 		"No publication filter applied": {
 			publication: []string{},
-			expected:    []Annotation{annotationA, annotationB, annotationC},
+			expected:    []Annotation{annotationA, annotationB, annotationC, annotationD},
 		},
 		"Unknown publication filter applied": {
 			publication: []string{"unknown"},
@@ -58,7 +64,7 @@ func TestPublicationFiltering(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			annotations := []Annotation{annotationA, annotationB, annotationC}
+			annotations := []Annotation{annotationA, annotationB, annotationC, annotationD}
 			f := newPublicationFilter(withPublication(tc.publication))
 			chain := newAnnotationsFilterChain(f)
 			filtered := chain.doNext(annotations)
