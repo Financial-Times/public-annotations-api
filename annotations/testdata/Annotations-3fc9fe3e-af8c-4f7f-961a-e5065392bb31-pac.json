@@ -1,72 +1,58 @@
 [
   {
-    "thing": {
-      "id": "http://api.ft.com/things/0483bef8-5797-40b8-9b25-b12e492f63c6",
-      "prefLabel": "Metal Mickey",
-      "types": [
-        "http://www.ft.com/ontology/Subject"
-      ],
-      "predicate": "isClassifiedBy"
-    }
+    "id": "http://api.ft.com/things/0483bef8-5797-40b8-9b25-b12e492f63c6",
+    "prefLabel": "Metal Mickey",
+    "types": [
+      "http://www.ft.com/ontology/Subject"
+    ],
+    "predicate": "isClassifiedBy"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/eac853f5-3859-4c08-8540-55e043719400",
-      "prefLabel": "Fakebook, Inc.",
-      "types": [
-          "http://www.ft.com/ontology/organisation/Organisation"
-      ],
-      "predicate": "hasDisplayTag"
-    }
+    "id": "http://api.ft.com/things/eac853f5-3859-4c08-8540-55e043719400",
+    "prefLabel": "Fakebook, Inc.",
+    "types": [
+      "http://www.ft.com/ontology/organisation/Organisation"
+    ],
+    "predicate": "hasDisplayTag"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/eac853f5-3859-4c08-8540-55e043719400",
-      "prefLabel": "Fakebook, Inc.",
-      "types": [
-        "http://www.ft.com/ontology/organisation/Organisation"
-      ],
-      "predicate": "about"
-    }
+    "id": "http://api.ft.com/things/eac853f5-3859-4c08-8540-55e043719400",
+    "prefLabel": "Fakebook, Inc.",
+    "types": [
+      "http://www.ft.com/ontology/organisation/Organisation"
+    ],
+    "predicate": "about"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/75e2f7e9-cb5e-40a5-a074-86d69fe09f69",
-      "prefLabel": "John Smith",
-      "types": [
-        "http://www.ft.com/ontology/person/Person"
-      ],
-      "predicate": "hasContributor"
-    }
+    "id": "http://api.ft.com/things/75e2f7e9-cb5e-40a5-a074-86d69fe09f69",
+    "prefLabel": "John Smith",
+    "types": [
+      "http://www.ft.com/ontology/person/Person"
+    ],
+    "predicate": "hasContributor"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/ff691bf8-8d92-2a2a-8326-c273400bff0b",
-      "prefLabel": "Child Business School video",
-      "types": [
-        "http://www.ft.com/ontology/person/Brand"
-      ],
-      "predicate": "isClassifiedBy"
-    }
+    "id": "http://api.ft.com/things/ff691bf8-8d92-2a2a-8326-c273400bff0b",
+    "prefLabel": "Child Business School video",
+    "types": [
+      "http://www.ft.com/ontology/person/Brand"
+    ],
+    "predicate": "isClassifiedBy"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/ff691bf8-8d92-1a1a-8326-c273400bff0b",
-      "prefLabel": "Business School video",
-      "types": [
-        "http://www.ft.com/ontology/person/Brand"
-      ],
-      "predicate": "implicitlyClassifiedBy"
-    }
+    "id": "http://api.ft.com/things/ff691bf8-8d92-1a1a-8326-c273400bff0b",
+    "prefLabel": "Business School video",
+    "types": [
+      "http://www.ft.com/ontology/person/Brand"
+    ],
+    "predicate": "implicitlyClassifiedBy"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/dbb0bdae-1f0c-1a1a-b0cb-b2227cce2b54",
-      "prefLabel": "Financial Times",
-      "types": [
-        "http://www.ft.com/ontology/person/Brand"
-      ],
-      "predicate": "implicitlyClassifiedBy"
-    }
+    "id": "http://api.ft.com/things/dbb0bdae-1f0c-1a1a-b0cb-b2227cce2b54",
+    "prefLabel": "Financial Times",
+    "types": [
+      "http://www.ft.com/ontology/person/Brand"
+    ],
+    "predicate": "implicitlyClassifiedBy"
   }
 ]

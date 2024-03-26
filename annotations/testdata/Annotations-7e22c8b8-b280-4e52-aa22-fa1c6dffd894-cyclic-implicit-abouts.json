@@ -1,12 +1,10 @@
 [
   {
-    "thing": {
-      "id": "http://api.ft.com/things/7e22c8b8-b280-4e52-aa22-fa1c6dffd894",
-      "prefLabel": "England Ashes 2017 Victory",
-      "types": [
-        "http://www.ft.com/ontology/Topic"
-      ],
-      "predicate": "about"
-    }
+    "id": "http://api.ft.com/things/7e22c8b8-b280-4e52-aa22-fa1c6dffd894",
+    "prefLabel": "England Ashes 2017 Victory",
+    "types": [
+      "http://www.ft.com/ontology/Topic"
+    ],
+    "predicate": "about"
   }
 ]

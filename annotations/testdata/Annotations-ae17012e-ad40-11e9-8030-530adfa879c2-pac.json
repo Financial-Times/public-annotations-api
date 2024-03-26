@@ -1,77 +1,35 @@
 [
   {
-    "thing": {
-      "id": "http://api.ft.com/things/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
-      "prefLabel": "Lex",
-      "types": [
-        "Thing",
-        "Concept",
-        "Brand",
-        "Classification"
-      ],
-      "predicate": "hasBrand"
-    },
-    "provenances": [
-      {
-        "scores": [
-          {
-            "scoringSystem": "http://api.ft.com/scoringsystem/FT-RELEVANCE-SYSTEM"
-          },
-          {
-            "scoringSystem": "http://api.ft.com/scoringsystem/FT-CONFIDENCE-SYSTEM"
-          }
-        ]
-      }
-    ]
+    "id": "http://api.ft.com/things/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
+    "prefLabel": "Lex",
+    "types": [
+      "Thing",
+      "Concept",
+      "Brand",
+      "Classification"
+    ],
+    "predicate": "hasBrand"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/6da31a37-691f-4908-896f-2829ebe2309e",
-      "prefLabel": "Opinion",
-      "types": [
-        "Thing",
-        "Concept",
-        "Classification",
-        "Genre"
-      ],
-      "predicate": "isClassifiedBy"
-    },
-    "provenances": [
-      {
-        "scores": [
-          {
-            "scoringSystem": "http://api.ft.com/scoringsystem/FT-RELEVANCE-SYSTEM"
-          },
-          {
-            "scoringSystem": "http://api.ft.com/scoringsystem/FT-CONFIDENCE-SYSTEM"
-          }
-        ]
-      }
-    ]
+    "id": "http://api.ft.com/things/6da31a37-691f-4908-896f-2829ebe2309e",
+    "prefLabel": "Opinion",
+    "types": [
+      "Thing",
+      "Concept",
+      "Classification",
+      "Genre"
+    ],
+    "predicate": "isClassifiedBy"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/87645070-7d8a-492e-9695-bf61ac2b4d18",
-      "prefLabel": "Moral Money",
-      "types": [
-        "Thing",
-        "Concept",
-        "Brand",
-        "Classification"
-      ],
-      "predicate": "isClassifiedBy"
-    },
-    "provenances": [
-      {
-        "scores": [
-          {
-            "scoringSystem": "http://api.ft.com/scoringsystem/FT-RELEVANCE-SYSTEM"
-          },
-          {
-            "scoringSystem": "http://api.ft.com/scoringsystem/FT-CONFIDENCE-SYSTEM"
-          }
-        ]
-      }
-    ]
+    "id": "http://api.ft.com/things/87645070-7d8a-492e-9695-bf61ac2b4d18",
+    "prefLabel": "Moral Money",
+    "types": [
+      "Thing",
+      "Concept",
+      "Brand",
+      "Classification"
+    ],
+    "predicate": "isClassifiedBy"
   }
 ]
