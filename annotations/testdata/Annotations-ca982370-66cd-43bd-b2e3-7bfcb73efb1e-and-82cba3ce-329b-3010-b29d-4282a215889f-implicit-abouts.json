@@ -1,22 +1,18 @@
 [
   {
-    "thing": {
-      "id": "http://api.ft.com/things/ca982370-66cd-43bd-b2e3-7bfcb73efb1e",
-      "prefLabel": "Ashes 2017",
-      "types": [
-        "http://www.ft.com/ontology/Topic"
-      ],
-      "predicate": "about"
-    }
+    "id": "http://api.ft.com/things/ca982370-66cd-43bd-b2e3-7bfcb73efb1e",
+    "prefLabel": "Ashes 2017",
+    "types": [
+      "http://www.ft.com/ontology/Topic"
+    ],
+    "predicate": "about"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/82cba3ce-329b-3010-b29d-4282a215889f",
-      "prefLabel": "Bulgaria",
-      "types": [
-        "http://www.ft.com/ontology/Location"
-      ],
-      "predicate": "about"
-    }
+    "id": "http://api.ft.com/things/82cba3ce-329b-3010-b29d-4282a215889f",
+    "prefLabel": "Bulgaria",
+    "types": [
+      "http://www.ft.com/ontology/Location"
+    ],
+    "predicate": "about"
   }
 ]
