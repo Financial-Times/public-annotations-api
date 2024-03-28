@@ -1,12 +1,10 @@
 [
   {
-    "thing": {
-      "id": "http://api.ft.com/things/740c604b-8d97-443e-be70-33de6f1d6e67",
-      "prefLabel": "Topic PrefLabel",
-      "types": [
-        "http://www.ft.com/ontology/Topic"
-      ],
-      "predicate": "about"
-    }
+    "id": "http://api.ft.com/things/740c604b-8d97-443e-be70-33de6f1d6e67",
+    "prefLabel": "Topic PrefLabel",
+    "types": [
+      "http://www.ft.com/ontology/Topic"
+    ],
+    "predicate": "about"
   }
 ]

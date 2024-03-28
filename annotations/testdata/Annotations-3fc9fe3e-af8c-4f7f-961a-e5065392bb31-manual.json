@@ -1,0 +1,10 @@
+[
+  {
+    "id": "http://api.ft.com/things/eac853f5-3859-4c08-8540-55e043719400",
+    "prefLabel": "Fakebook, Inc.",
+    "types": [
+      "http://www.ft.com/ontology/organisation/Organisation"
+    ],
+    "predicate": "about"
+  }
+]

@@ -1,52 +1,42 @@
 [
   {
-    "thing": {
-      "id": "http://api.ft.com/things/ee2cffbc-ddd9-4ae2-9e4c-52e6fb722ed9",
-      "prefLabel": "Brand1",
-      "types": [
-        "http://www.ft.com/ontology/product/Brand"
-      ],
-      "predicate": "isClassifiedBy"
-    }
+    "id": "http://api.ft.com/things/ee2cffbc-ddd9-4ae2-9e4c-52e6fb722ed9",
+    "prefLabel": "Brand1",
+    "types": [
+      "http://www.ft.com/ontology/product/Brand"
+    ],
+    "predicate": "isClassifiedBy"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/745394df-41f2-4429-a2e7-031237565837",
-      "prefLabel": "Topic2",
-      "types": [
-          "http://www.ft.com/ontology/Topic"
-      ],
-      "predicate": "about"
-    }
+    "id": "http://api.ft.com/things/745394df-41f2-4429-a2e7-031237565837",
+    "prefLabel": "Topic2",
+    "types": [
+      "http://www.ft.com/ontology/Topic"
+    ],
+    "predicate": "about"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/01131def-c2bf-4893-9a7e-1f01ae9d8451",
-      "prefLabel": "Organisation1",
-      "types": [
-        "http://www.ft.com/ontology/organisation/Organisation"
-      ],
-      "predicate": "about"
-    }
+    "id": "http://api.ft.com/things/01131def-c2bf-4893-9a7e-1f01ae9d8451",
+    "prefLabel": "Organisation1",
+    "types": [
+      "http://www.ft.com/ontology/organisation/Organisation"
+    ],
+    "predicate": "about"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/f1f8bfe0-3ec2-46f5-b8ff-18d48a32a1c0",
-      "prefLabel": "Topic1",
-      "types": [
-        "http://www.ft.com/ontology/Topic"
-      ],
-      "predicate": "mentions"
-    }
+    "id": "http://api.ft.com/things/f1f8bfe0-3ec2-46f5-b8ff-18d48a32a1c0",
+    "prefLabel": "Topic1",
+    "types": [
+      "http://www.ft.com/ontology/Topic"
+    ],
+    "predicate": "mentions"
   },
   {
-    "thing": {
-      "id": "http://api.ft.com/things/01131def-c2bf-4893-9a7e-1f01ae9d8451",
-      "prefLabel": "Organisation2",
-      "types": [
-        "http://www.ft.com/ontology/organisation/Organisation"
-      ],
-      "predicate": "about"
-    }
+    "id": "http://api.ft.com/things/01131def-c2bf-4893-9a7e-1f01ae9d8451",
+    "prefLabel": "Organisation2",
+    "types": [
+      "http://www.ft.com/ontology/organisation/Organisation"
+    ],
+    "predicate": "about"
   }
 ]
