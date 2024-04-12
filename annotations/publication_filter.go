@@ -24,6 +24,9 @@ func newPublicationFilter(opts ...func(*publicationFilter)) *publicationFilter {
 func withPublication(publication []string) func(filter *publicationFilter) {
 	return func(f *publicationFilter) {
 		f.publication = publication
+		if len(f.publication) == 0 {
+			f.publication = append(f.publication, ftPink)
+		}
 	}
 }
 

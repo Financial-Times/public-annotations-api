@@ -52,9 +52,9 @@ func TestPublicationFiltering(t *testing.T) {
 			publication: []string{sv, ftPink},
 			expected:    []Annotation{annotationA, annotationB, annotationC, annotationD},
 		},
-		"No publication filter applied": {
+		"No publication filter applied, default to ftPink": {
 			publication: []string{},
-			expected:    []Annotation{annotationA, annotationB, annotationC, annotationD},
+			expected:    []Annotation{annotationB, annotationD},
 		},
 		"Unknown publication filter applied": {
 			publication: []string{"unknown"},
