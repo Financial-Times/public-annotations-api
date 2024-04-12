@@ -65,7 +65,7 @@ func TestPublicationFiltering(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			annotations := []Annotation{annotationA, annotationB, annotationC, annotationD}
-			f := newPublicationFilter(withPublication(tc.publication))
+			f := newPublicationFilter(withPublication(tc.publication, true))
 			chain := newAnnotationsFilterChain(f)
 			filtered := chain.doNext(annotations)
 
