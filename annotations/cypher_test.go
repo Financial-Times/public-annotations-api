@@ -829,6 +829,12 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithoutPublicationAndFTPi
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
 	}
 
+	for i := range expectedAnnotations {
+		if expectedAnnotations[i].Lifecycle != v2Lifecycle {
+			expectedAnnotations[i].Publication = []string{ftPink}
+		}
+	}
+
 	assert.Len(s.T(), anns, len(expectedAnnotations), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
 }

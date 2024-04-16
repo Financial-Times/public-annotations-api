@@ -79,7 +79,7 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 		if showPublicationParam := params.Get("showPublication"); showPublicationParam != "" {
 			showPublication, err = strconv.ParseBool(showPublicationParam)
 			if err != nil {
-				writeResponseError(hctx, w, http.StatusBadRequest, uuid, `{"message":"showPublication query parameter is not a boolean"}`)
+				writeResponseError(hctx, w, http.StatusBadRequest, uuid, `{"message":"Error while validating annotations request for content with uuid: %s, showPublication query parameter is not a boolean"}`)
 				return
 			}
 		}
