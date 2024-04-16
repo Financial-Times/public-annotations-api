@@ -50,6 +50,9 @@ func (f *publicationFilter) filterByPublication(annotations []Annotation) []Anno
 
 			if pub == ftPink {
 				if annotation.Publication == nil {
+					if annotation.Lifecycle == pacLifecycle {
+						annotation.Publication = append(annotation.Publication, ftPink)
+					}
 					filtered = append(filtered, annotation)
 				}
 			}

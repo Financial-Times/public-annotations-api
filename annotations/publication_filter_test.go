@@ -14,25 +14,29 @@ const (
 var annotationA = Annotation{
 	ID:          "6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18",
 	Predicate:   ABOUT,
+	Lifecycle:   manualLifecycle,
 	Publication: []string{sv},
 }
 
 var annotationB = Annotation{
 	ID:          "0ab61bfc-a2b1-4b08-a864-4233fd72f250",
 	Predicate:   MENTIONS,
+	Lifecycle:   pacLifecycle,
 	Publication: []string{ftPink},
 }
 
 var annotationC = Annotation{
 	ID:          "a0076026-f2e5-414f-b7a0-419bc16c4c51",
 	Predicate:   ABOUT,
+	Lifecycle:   pacLifecycle,
 	Publication: []string{sv, st},
 }
 
 var annotationD = Annotation{
 	ID:          "5f2584bf-7f40-4513-94b5-dd340e572996",
 	Predicate:   ABOUT,
-	Publication: nil,
+	Publication: []string{ftPink},
+	Lifecycle:   pacLifecycle,
 }
 
 func TestPublicationFiltering(t *testing.T) {
