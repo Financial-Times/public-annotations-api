@@ -9,8 +9,7 @@ const (
 )
 
 type publicationFilter struct {
-	publication     []string
-	showPublication bool
+	publication []string
 }
 
 func newPublicationFilter(opts ...func(*publicationFilter)) *publicationFilter {
@@ -22,13 +21,9 @@ func newPublicationFilter(opts ...func(*publicationFilter)) *publicationFilter {
 	return &pf
 }
 
-func withPublication(publication []string, showPublication bool) func(filter *publicationFilter) {
+func withPublication(publication []string) func(filter *publicationFilter) {
 	return func(f *publicationFilter) {
-		f.showPublication = showPublication
 		f.publication = publication
-		if len(f.publication) == 0 {
-			f.publication = append(f.publication, ftPink)
-		}
 	}
 }
 
@@ -50,18 +45,9 @@ func (f *publicationFilter) filterByPublication(annotations []Annotation) []Anno
 
 			if pub == ftPink {
 				if annotation.Publication == nil {
-					if annotation.Lifecycle == pacLifecycle {
-						annotation.Publication = append(annotation.Publication, ftPink)
-					}
 					filtered = append(filtered, annotation)
 				}
 			}
-		}
-	}
-
-	if !f.showPublication {
-		for i := range filtered {
-			filtered[i].Publication = nil
 		}
 	}
 

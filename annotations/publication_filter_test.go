@@ -14,29 +14,25 @@ const (
 var annotationA = Annotation{
 	ID:          "6bbd0457-15ab-4ddc-ab82-0cd5b8d9ce18",
 	Predicate:   ABOUT,
-	Lifecycle:   manualLifecycle,
 	Publication: []string{sv},
 }
 
 var annotationB = Annotation{
 	ID:          "0ab61bfc-a2b1-4b08-a864-4233fd72f250",
 	Predicate:   MENTIONS,
-	Lifecycle:   pacLifecycle,
 	Publication: []string{ftPink},
 }
 
 var annotationC = Annotation{
 	ID:          "a0076026-f2e5-414f-b7a0-419bc16c4c51",
 	Predicate:   ABOUT,
-	Lifecycle:   pacLifecycle,
 	Publication: []string{sv, st},
 }
 
 var annotationD = Annotation{
 	ID:          "5f2584bf-7f40-4513-94b5-dd340e572996",
 	Predicate:   ABOUT,
-	Publication: []string{ftPink},
-	Lifecycle:   pacLifecycle,
+	Publication: nil,
 }
 
 func TestPublicationFiltering(t *testing.T) {
@@ -56,9 +52,9 @@ func TestPublicationFiltering(t *testing.T) {
 			publication: []string{sv, ftPink},
 			expected:    []Annotation{annotationA, annotationB, annotationC, annotationD},
 		},
-		"No publication filter applied, default to ftPink": {
+		"No publication filter applied": {
 			publication: []string{},
-			expected:    []Annotation{annotationB, annotationD},
+			expected:    []Annotation{annotationA, annotationB, annotationC, annotationD},
 		},
 		"Unknown publication filter applied": {
 			publication: []string{"unknown"},
@@ -69,7 +65,7 @@ func TestPublicationFiltering(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			annotations := []Annotation{annotationA, annotationB, annotationC, annotationD}
-			f := newPublicationFilter(withPublication(tc.publication, true))
+			f := newPublicationFilter(withPublication(tc.publication))
 			chain := newAnnotationsFilterChain(f)
 			filtered := chain.doNext(annotations)
 
