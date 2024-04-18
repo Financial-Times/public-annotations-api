@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Financial-Times/go-logger/v2"
 	"github.com/gorilla/mux"
@@ -74,7 +75,15 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 
 		lifecycleFilter := newLifecycleFilter(withLifecycles(lifecycleParams))
 		predicateFilter := NewAnnotationsPredicateFilter()
-		publicationFilter := newPublicationFilter(withPublication(params["publication"]))
+		showPublication := false
+		if showPublicationParam := params.Get("showPublication"); showPublicationParam != "" {
+			showPublication, err = strconv.ParseBool(showPublicationParam)
+			if err != nil {
+				writeResponseError(hctx, w, http.StatusBadRequest, uuid, `{"message":"Error while validating annotations request for content with uuid: %s, showPublication query parameter is not a boolean"}`)
+				return
+			}
+		}
+		publicationFilter := newPublicationFilter(withPublication(params["publication"], showPublication))
 		chain := newAnnotationsFilterChain(lifecycleFilter, predicateFilter, publicationFilter)
 
 		annotations = chain.doNext(annotations)

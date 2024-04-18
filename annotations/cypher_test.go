@@ -754,7 +754,37 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithPublicationFTPink() {
 	writeManualAnnotations(s.T(), s.driver)
 
 	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
-	publicationFilter := newPublicationFilter(withPublication([]string{ftPink}))
+	publicationFilter := newPublicationFilter(withPublication([]string{ftPink}, true))
+	filters := []annotationsFilter{publicationFilter}
+	anns := getAndCheckAnnotationsWithSpecificFilters(annotationsDriver, contentUUID, s.T(), filters...)
+
+	expectedAnnotations := Annotations{
+		getExpectedMetalMickeyAnnotation(pacLifecycle),
+		getExpectedHasDisplayTagFakebookAnnotation(pacLifecycle),
+		getExpectedAboutFakebookAnnotation(pacLifecycle),
+		getExpectedJohnSmithAnnotation(pacLifecycle),
+		getExpectedMallStreetJournalAnnotation(),
+		expectedAnnotation(brandGrandChildUUID, brandType, predicates["IS_CLASSIFIED_BY"], pacLifecycle),
+		expectedAnnotation(brandChildUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
+		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
+	}
+
+	for i := range expectedAnnotations {
+		if expectedAnnotations[i].Lifecycle != v2Lifecycle {
+			expectedAnnotations[i].Publication = []string{ftPink}
+		}
+	}
+
+	assert.Len(s.T(), anns, len(expectedAnnotations), "Didn't get the same number of annotations")
+	assertListContainsAll(s.T(), anns, expectedAnnotations)
+}
+
+func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithEmptyPublicationFilter() {
+	writePacAnnotations(s.T(), s.driver, []interface{}{ftPink})
+	writeManualAnnotations(s.T(), s.driver)
+
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
+	publicationFilter := newPublicationFilter(withPublication([]string{}, true))
 	filters := []annotationsFilter{publicationFilter}
 	anns := getAndCheckAnnotationsWithSpecificFilters(annotationsDriver, contentUUID, s.T(), filters...)
 
@@ -784,7 +814,7 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithoutPublicationAndFTPi
 	writeManualAnnotations(s.T(), s.driver)
 
 	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
-	publicationFilter := newPublicationFilter(withPublication([]string{ftPink}))
+	publicationFilter := newPublicationFilter(withPublication([]string{ftPink}, true))
 	filters := []annotationsFilter{publicationFilter}
 	anns := getAndCheckAnnotationsWithSpecificFilters(annotationsDriver, contentUUID, s.T(), filters...)
 
@@ -799,6 +829,12 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithoutPublicationAndFTPi
 		expectedAnnotation(brandParentUUID, brandType, predicates["IMPLICITLY_CLASSIFIED_BY"], pacLifecycle),
 	}
 
+	for i := range expectedAnnotations {
+		if expectedAnnotations[i].Lifecycle != v2Lifecycle {
+			expectedAnnotations[i].Publication = []string{ftPink}
+		}
+	}
+
 	assert.Len(s.T(), anns, len(expectedAnnotations), "Didn't get the same number of annotations")
 	assertListContainsAll(s.T(), anns, expectedAnnotations)
 }
@@ -808,7 +844,7 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithPublicationSV() {
 	writeManualAnnotations(s.T(), s.driver)
 
 	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
-	publicationFilter := newPublicationFilter(withPublication([]string{sv}))
+	publicationFilter := newPublicationFilter(withPublication([]string{sv}, true))
 	filters := []annotationsFilter{publicationFilter}
 	anns := getAndCheckAnnotationsWithSpecificFilters(annotationsDriver, contentUUID, s.T(), filters...)
 
@@ -818,6 +854,23 @@ func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithPublicationSV() {
 
 	for i := range expectedAnnotations {
 		expectedAnnotations[i].Publication = []string{sv}
+	}
+
+	assert.Len(s.T(), anns, len(expectedAnnotations), "Didn't get the same number of annotations")
+	assertListContainsAll(s.T(), anns, expectedAnnotations)
+}
+
+func (s *cypherDriverTestSuite) TestRetrieveAnnotationsWithPublicationSVAndRemovedPublicationFromResponse() {
+	writePacAnnotations(s.T(), s.driver, []interface{}{ftPink})
+	writeManualAnnotations(s.T(), s.driver)
+
+	annotationsDriver := NewCypherDriver(s.driver, publicAPIURL)
+	publicationFilter := newPublicationFilter(withPublication([]string{sv}, false))
+	filters := []annotationsFilter{publicationFilter}
+	anns := getAndCheckAnnotationsWithSpecificFilters(annotationsDriver, contentUUID, s.T(), filters...)
+
+	expectedAnnotations := Annotations{
+		getExpectedAboutFakebookAnnotation(lifecycleMap["manual"]),
 	}
 
 	assert.Len(s.T(), anns, len(expectedAnnotations), "Didn't get the same number of annotations")

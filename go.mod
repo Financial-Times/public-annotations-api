@@ -1,8 +1,8 @@
 module github.com/Financial-Times/public-annotations-api/v3
 
-go 1.21
+go 1.22
 
-toolchain go1.21.2
+toolchain go1.22.2
 
 require (
 	github.com/Financial-Times/annotations-rw-neo4j/v4 v4.9.1
@@ -29,44 +29,23 @@ require (
 	github.com/Financial-Times/cm-annotations-ontology v1.0.4 // indirect
 	github.com/Financial-Times/cm-graph-ontology v1.2.0 // indirect
 	github.com/Financial-Times/http-handlers-go v0.0.0-20180517120644-2c20324ab887 // indirect
-	github.com/Financial-Times/kafka-client-go/v3 v3.1.0 // indirect
 	github.com/Financial-Times/transactionid-utils-go v1.0.0 // indirect
 	github.com/Financial-Times/up-rw-app-api-go v0.0.0-20210202155002-307a978447bd // indirect
-	github.com/Financial-Times/upp-content-validator-kit/v3 v3.0.2 // indirect
-	github.com/Shopify/sarama v1.38.1 // indirect
 	github.com/cyberdelia/go-metrics-graphite v0.0.0-20161219230853-39f87cc3b432 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dchest/uniuri v1.2.0 // indirect
-	github.com/eapache/go-resiliency v1.6.0 // indirect
-	github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 // indirect
-	github.com/eapache/queue v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
-	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
-	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
-	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
-	github.com/jcmturner/gofork v1.7.6 // indirect
-	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
-	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
-	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mitchellh/hashstructure v1.1.0 // indirect
-	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
-	github.com/pierrec/lz4/v4 v4.1.21 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/r3labs/diff/v3 v3.0.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
-	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
