@@ -55,11 +55,6 @@ paths:
             type: array
             items:
               type: string
-        - in: query
-          name: showPublication
-          required: false
-          schema:
-            type: boolean
         - in: header
           name: Neo4j-Bookmark
           schema:
