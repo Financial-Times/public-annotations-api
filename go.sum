@@ -4,8 +4,8 @@ github.com/Financial-Times/api-endpoint v1.0.0 h1:EhJfcVcrktPrweue6dCUQAYcEQiXwh
 github.com/Financial-Times/api-endpoint v1.0.0/go.mod h1:QrJsxP8uEZIPJZon+qhc+zO7H0634DpoqDI291i0Nag=
 github.com/Financial-Times/base-ft-rw-app-go/v2 v2.0.0 h1:OlPaFFRSzaZuB0Ta/j0htJFkQG54sFkw2WFhWHKqLiY=
 github.com/Financial-Times/base-ft-rw-app-go/v2 v2.0.0/go.mod h1:Td0/3sUrq7H7yHf86jcpVQ0LUvt5NWRUrRVjxgYIkAk=
-github.com/Financial-Times/cm-annotations-ontology v1.0.4 h1:e2j9SvvfnvgKQvIEbEKWrwbw0idYLq9iqTyr+XBWCL4=
-github.com/Financial-Times/cm-annotations-ontology v1.0.4/go.mod h1:/XnpxdtpDn+CgbTCecv81k6ebSgt+jNx5KrrO2zsP+8=
+github.com/Financial-Times/cm-annotations-ontology v1.0.6 h1:4Un7ft0/SULrPqNR6JeqoDrjPE3/Jxpev+yXufoGCls=
+github.com/Financial-Times/cm-annotations-ontology v1.0.6/go.mod h1:/9uneekJE5KFWipqreEWMh2JEnxAivnHomEslrsNY9g=
 github.com/Financial-Times/cm-graph-ontology v1.2.0 h1:Tg/40io7vfZb4pLgr2GY1qTySkJ5FrumKfqLN7CCe9M=
 github.com/Financial-Times/cm-graph-ontology v1.2.0/go.mod h1:37aV26KEJq/Kh7Q1Ik/QxGNculEbY6Jtg9b2MlqEiXM=
 github.com/Financial-Times/cm-graph-ontology/v2 v2.0.8 h1:fxHkNLbN+OOahOKSr/6iczbGwBh+Q4AuLZRv1w7O5gU=
