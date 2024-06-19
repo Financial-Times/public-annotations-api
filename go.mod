@@ -8,7 +8,7 @@ require (
 	github.com/Financial-Times/annotations-rw-neo4j/v4 v4.9.1
 	github.com/Financial-Times/api-endpoint v1.0.0
 	github.com/Financial-Times/base-ft-rw-app-go/v2 v2.0.0
-	github.com/Financial-Times/cm-graph-ontology/v2 v2.0.8
+	github.com/Financial-Times/cm-graph-ontology/v2 v2.0.12
 	github.com/Financial-Times/cm-neo4j-driver v1.1.1
 	github.com/Financial-Times/concepts-rw-neo4j v1.35.9
 	github.com/Financial-Times/content-rw-neo4j/v3 v3.5.3
@@ -26,7 +26,7 @@ require (
 )
 
 require (
-	github.com/Financial-Times/cm-annotations-ontology v1.0.4 // indirect
+	github.com/Financial-Times/cm-annotations-ontology v1.0.6 // indirect
 	github.com/Financial-Times/cm-graph-ontology v1.2.0 // indirect
 	github.com/Financial-Times/http-handlers-go v0.0.0-20180517120644-2c20324ab887 // indirect
 	github.com/Financial-Times/transactionid-utils-go v1.0.0 // indirect
