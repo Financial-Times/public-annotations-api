@@ -26,7 +26,7 @@ require (
 )
 
 require (
-	github.com/Financial-Times/cm-annotations-ontology v1.0.6 // indirect
+	github.com/Financial-Times/cm-annotations-ontology v1.0.7 // indirect
 	github.com/Financial-Times/cm-graph-ontology v1.2.0 // indirect
 	github.com/Financial-Times/http-handlers-go v0.0.0-20180517120644-2c20324ab887 // indirect
 	github.com/Financial-Times/transactionid-utils-go v1.0.0 // indirect

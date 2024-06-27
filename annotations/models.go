@@ -38,4 +38,5 @@ var predicates = map[string]string{
 	"IMPLICITLY_CLASSIFIED_BY":   "http://www.ft.com/ontology/implicitlyClassifiedBy",
 	"IMPLICITLY_ABOUT":           "http://www.ft.com/ontology/implicitlyAbout",
 	"IS_SPONSORED_BY":            "http://www.ft.com/ontology/annotation/isSponsoredBy",
+	"HAS_SOURCE":                 "http://www.ft.com/ontology/annotation/hasSource",
 }
