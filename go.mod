@@ -8,7 +8,7 @@ require (
 	github.com/Financial-Times/annotations-rw-neo4j/v4 v4.9.1
 	github.com/Financial-Times/api-endpoint v1.0.0
 	github.com/Financial-Times/base-ft-rw-app-go/v2 v2.0.0
-	github.com/Financial-Times/cm-graph-ontology/v2 v2.0.12
+	github.com/Financial-Times/cm-graph-ontology/v2 v2.0.13
 	github.com/Financial-Times/cm-neo4j-driver v1.1.1
 	github.com/Financial-Times/concepts-rw-neo4j v1.35.9
 	github.com/Financial-Times/content-rw-neo4j/v3 v3.5.3
