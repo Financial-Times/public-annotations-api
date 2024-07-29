@@ -1,8 +1,6 @@
 package annotations
 
-import (
-	"slices"
-)
+import "slices"
 
 const (
 	ftPink = "88fdde6c-2aa4-4f78-af02-9f680097cfd6"
@@ -34,23 +32,24 @@ func (f *publicationFilter) filter(in []Annotation, chain *annotationsFilterChai
 }
 
 func (f *publicationFilter) filterByPublication(annotations []Annotation) []Annotation {
-	if len(f.publication) == 0 {
-		return annotations
-	}
-
 	var filtered []Annotation
-	for _, annotation := range annotations {
-		for _, pub := range f.publication {
-			if slices.Contains(annotation.Publication, pub) {
-				filtered = append(filtered, annotation)
-			}
 
-			if pub == ftPink {
-				if annotation.Publication == nil {
+	if len(f.publication) > 0 {
+		for _, annotation := range annotations {
+			for _, pub := range f.publication {
+				if slices.Contains(annotation.Publication, pub) {
 					filtered = append(filtered, annotation)
+				}
+	
+				if pub == ftPink {
+					if annotation.Publication == nil {
+						filtered = append(filtered, annotation)
+					}
 				}
 			}
 		}
+	} else {
+		filtered = annotations
 	}
 
 	if !f.showPublication {
