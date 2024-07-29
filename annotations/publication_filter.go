@@ -40,7 +40,7 @@ func (f *publicationFilter) filterByPublication(annotations []Annotation) []Anno
 				if slices.Contains(annotation.Publication, pub) {
 					filtered = append(filtered, annotation)
 				}
-	
+
 				if pub == ftPink {
 					if annotation.Publication == nil {
 						filtered = append(filtered, annotation)
@@ -52,11 +52,15 @@ func (f *publicationFilter) filterByPublication(annotations []Annotation) []Anno
 		filtered = annotations
 	}
 
+	f.applyShowPublicationFilter(filtered)
+
+	return filtered
+}
+
+func (f *publicationFilter) applyShowPublicationFilter(filtered []Annotation) {
 	if !f.showPublication {
 		for i := range filtered {
 			filtered[i].Publication = nil
 		}
 	}
-
-	return filtered
 }
