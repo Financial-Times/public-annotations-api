@@ -79,7 +79,11 @@ func GetAnnotations(hctx *HandlerCtx) func(http.ResponseWriter, *http.Request) {
 		if showPublicationParam := params.Get("showPublication"); showPublicationParam != "" {
 			showPublication, err = strconv.ParseBool(showPublicationParam)
 			if err != nil {
-				writeResponseError(hctx, w, http.StatusBadRequest, uuid, `{"message":"showPublication query parameter is not a boolean"}`)
+				w.WriteHeader(http.StatusBadRequest)
+				msg := `{"message":"showPublication query parameter is not a boolean"}`
+				if _, err = w.Write([]byte(msg)); err != nil {
+					hctx.Log.WithError(err).Errorf("Error while writing response: %s", msg)
+				}
 				return
 			}
 		}
